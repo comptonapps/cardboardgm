@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>EDIT CARD</h1>
+<div class="form-container">
+
+    <form method='POST'>
+            {{ form.hidden_tag() }}
+        
+            {% for field in form
+                if field.widget.input_type != 'hidden' %}
+        
+            <div class="form-group">
+                {{field.label(class_="form-label")}}
+                {{field(class_="form-field")}}
+            </div>
+            
+            {% for error in field.errors %}
+            <div class="field-error">
+                <p class="error-text">{{error}}</p>
+            </div>
+            {% endfor %}
+        
+            {% endfor %}
+            <button>Save Changes</button>
+        </form>
+        <form>
+            <button>Cancel</button>
+        </form>
+        <form action="/cards/{{card.id}}/delete" method='POST'>
+            <button>Delete Card</button>
+        </form>
+
+</div>
+{% endblock%}

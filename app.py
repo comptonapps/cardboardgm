@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, g, session, redirect, flash
 from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card
-from forms import LoginForm, RegisterForm, CardForm
+from forms import LoginForm, RegisterForm, CardForm, EditUserForm
 from sqlalchemy.exc import IntegrityError
 
 USER_ID = "user_id"
@@ -36,7 +36,7 @@ def login_user():
     if form.validate_on_submit():
         user = User.authenticate(username=form.username.data, password=form.password.data)
         if user:
-            session[USER_ID] = user.id
+            add_user_to_session(user)
             return redirect(f'/users/{user.id}')
         else:
             flash("Incorrect Username or Password")
@@ -65,7 +65,7 @@ def register_user():
                 flash("Username already taken")
                 return redirect('/register')
             except:
-                db.session.rollback
+                db.session.rollback()
                 flash("Error creating user")
                 return redirect('/register')
     return render_template('register.html', form=form)
@@ -73,10 +73,103 @@ def register_user():
 @app.route('/users/<int:id>')
 def show_user(id):
     user = User.query.get_or_404(id)
-    return user.username
+    return render_template('user.html', user=user)
+
+@app.route('/users/<int:id>/edit', methods=['GET', 'POST'])
+def edit_user_form(id):
+    user = User.query.get_or_404(id)
+    form = EditUserForm(obj=user)
+    del form.username
+    del form.password
+    if form.validate_on_submit():
+        user.email = form.email.data
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        try:
+            db.session.commit()
+            return redirect(f'/users/{user.id}')
+        except:
+            flash("Changes could not be saved")
+            
+    return render_template('edit-user.html', user=user, form=form)
+
+@app.route('/users/<int:id>/add_card', methods=['GET', 'POST'])
+def add_new_card(id):
+    form = CardForm()
+    if form.validate_on_submit():
+        new_card = Card(owner_id=id,
+                        player=form.player.data,
+                        year=form.year.data,
+                        set_name=form.set_name.data,
+                        number=form.number.data,
+                        desc=form.desc.data)
+        db.session.add(new_card)
+        try:
+            db.session.commit()
+            flash("Card successfully added!")
+            return redirect(f'/users/{id}')
+        except:
+            db.session.rollback()
+            flash("Error adding Card")
+    return render_template('add-card.html', form=form)
+
+@app.route('/users/<int:id>/delete', methods=['POST'])
+def delete_user(id):
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    try:
+        db.session.commit()
+        flash("User Deleted!")
+        return redirect('/logout')
+    except:
+        db.session.rollback()
+        flash("Error deleting user")
+        return redirect("/")
+
+@app.route('/cards/<int:id>')
+def show_card(id):
+    card = Card.query.get_or_404(id)
+    return render_template('card.html', card=card)
+
+@app.route('/cards/<int:id>/edit', methods=['GET', 'POST'])
+def edit_card(id):
+    card = Card.query.get_or_404(id)
+    form = CardForm(obj=card)
+    if form.validate_on_submit():
+        card.player = form.player.data
+        card.set_name = form.set_name.data
+        card.number = form.number.data
+        card.year = form.year.data
+        card.desc = form.desc.data
+        try:
+            db.session.commit()
+            flash("Changes saved")
+            return redirect(f'/users/{card.user.id}')
+        except:
+            db.session.rollback()
+            flash("error saving changes")
+    return render_template('edit-card.html', form=form, card=card)
+
+@app.route('/cards/<int:id>/delete', methods=['POST'])
+def delete_card(id):
+    card = Card.query.get_or_404(id)
+    db.session.delete(card)
+    try:
+        db.session.commit()
+        flash("Card Deleted!")
+        return redirect(f'/users/{card.user.id}')
+    except:
+        db.session.rollback()
+        flash('Error deleting card')
+        return redirect(request.url)
+
+
 
 @app.route('/logout')
 def logout_user():
     session.pop(USER_ID)
     flash("Goodbye!")
     return redirect('/')
+
+def add_user_to_session(user):
+    session[USER_ID] = user.id

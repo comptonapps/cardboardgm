@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{card.to_string()}}</h1>
+{% if card.user.id == g.user.id %}
+<a href="/cards/{{card.id}}/edit">Edit Card</a>
+{% endif %}
+{% endblock %}

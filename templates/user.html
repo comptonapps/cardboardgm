@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{user.username}}</h1>
+<h2>Collection</h2>
+{% if g.user %}
+<a href="/users/{{user.id}}/add_card">Add To Collection</a>
+{% endif %}
+<div>
+{% for card in user.cards %}
+<a href="/cards/{{card.id}}">{{card.to_string()}}</a>
+{% endfor %}
+</div>
+{% endblock %}

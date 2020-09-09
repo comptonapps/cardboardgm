@@ -12,8 +12,6 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    __tablename__ = "users"
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.Text, nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
@@ -60,7 +58,7 @@ class Card(db.Model):
     __tablename__ = "cards"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    master = db.Column(db.Integer, db.ForeignKey("card_masters.id"))
+    #master = db.Column(db.Integer, db.ForeignKey("card_masters.id"))
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     player = db.Column(db.Text, nullable=False)
     year = db.Column(db.Integer, nullable=False)

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>EDIT PROFILE: {{user.username}}</h1>
+<div class="form-container">
+    <p>Current User Image</p>
+    <img src=
+    {% if user.img_url %}
+    "{{user.img_url}}"
+    {% else %}
+    "/static/images/no-avatar.png"
+    {% endif %}
+    alt="" id="edit-avatar">
+    <form method='POST'>
+            {{ form.hidden_tag() }}
+        
+            {% for field in form
+                if field.widget.input_type != 'hidden' %}
+        
+            <div class="form-group">
+                {{field.label(class_="form-label")}}
+                {{field(class_="form-field")}}
+            </div>
+            
+            {% for error in field.errors %}
+            <div class="field-error">
+                <p class="error-text">{{error}}</p>
+            </div>
+            {% endfor %}
+        
+            {% endfor %}
+            <button>Save Changes</button>
+        </form>
+        <form>
+            <button>Cancel</button>
+        </form>
+        <form action="/users/{{user.id}}/delete" method='POST'>
+            <button>Delete Account</button>
+        </form>
+
+</div>
+{% endblock%}
