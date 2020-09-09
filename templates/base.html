@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <div class="brand"><a href="/">CARDBOARDGM</a></div>
+        <ul class="nav-links">
+            <li class="nav-link"><a href="/cards">Cards</a></li>
+            <li class="nav-link"><a href="/users">Users</a></li>
+            <li class="nav-link"><a href="users/{{g.user.id}}/requests">Requests</a></li>
+            <li class="nav-link"><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% for msg in get_flashed_messages() %}
+        {{msg}}
+        {% endfor %}
+        <div class="app-container">
+                {% block content %}
+                {% endblock %}
+        </div>
+        
+    </main>
+</body>
+</html>
