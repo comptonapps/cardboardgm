@@ -3,6 +3,9 @@ from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm
 from sqlalchemy.exc import IntegrityError
+from helpers import handle_image_upload, delete_record_from_s3
+from PIL import Image, UnidentifiedImageError
+import io
 
 USER_ID = "user_id"
 
@@ -107,6 +110,21 @@ def add_new_card(id):
         try:
             db.session.commit()
             flash("Card successfully added!")
+            if form.image.data:
+                try:
+                    img = Image.open(request.files[form.image.name])
+                    large = (600, 600)
+                    img.thumbnail(large)
+                    key_stub = f"card_images/{new_card.id}_full"
+                    file_key = handle_image_upload(img, key_stub)
+                    thumb_key_stub = f"card_images/{new_card.id}_thumb"
+                    size = (150, 150)
+                    img.thumbnail(size)
+                    thumb_file_key = handle_image_upload(img, thumb_key_stub)
+                    new_card.img_url = file_key
+                    db.session.commit()
+                except:
+                    flash("Image file is unsupported type")
             return redirect(f'/users/{id}')
         except:
             db.session.rollback()
@@ -157,6 +175,7 @@ def delete_card(id):
     try:
         db.session.commit()
         flash("Card Deleted!")
+        delete_record_from_s3(card)
         return redirect(f'/users/{card.user.id}')
     except:
         db.session.rollback()

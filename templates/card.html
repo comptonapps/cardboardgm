@@ -2,7 +2,10 @@
 
 {% block content %}
 <h1>{{card.to_string()}}</h1>
+<img src="{{card.full_img_url()}}" alt="">
+<img src="{{card.thumb_url()}}" alt="">
 {% if card.user.id == g.user.id %}
 <a href="/cards/{{card.id}}/edit">Edit Card</a>
 {% endif %}
+<script src="/static/scripts/alert.js"></script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy 
 from flask_bcrypt import Bcrypt 
+from constants import AWS_URL
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -78,10 +79,13 @@ class Card(db.Model):
     def to_string(self):
         return f"{self.year} {self.set_name} #{self.number} {self.player} {self.desc}"
 
+    def full_img_url(self):
+        return f"{AWS_URL}{self.img_url}"
+
     def thumb_url(self):
         if self.img_url:
-            split_url = self.img_url.rsplit(".", 1)
-            return f"{split_url[0]}_thumb.{split_url[1]}"
+            thumbnail_url = self.img_url.replace("_full", "_thumb")
+            return f"{AWS_URL}{thumbnail_url}"
         else:
             return None
 
