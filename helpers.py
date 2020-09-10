@@ -3,9 +3,6 @@ from PIL import Image
 from models import Card
 import io
 
-THUMB_SIZE = (150, 150)
-
-
 class ImageUploadException(Exception):
     def __init__(self, msg):
         super().__init__(msg)
@@ -15,7 +12,6 @@ def handle_image_upload(img_data, key_stub):
     return thumb_img_key
 
 def upload_image(img_data, key_stub):
-    print(f'\n\nUPLOADING\n\n')
     img_bytes = io.BytesIO()
     img_data.save(img_bytes, format=img_data.format)
     file_key = f"{key_stub}.{img_data.format}"
