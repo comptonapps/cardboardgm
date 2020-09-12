@@ -175,7 +175,8 @@ def delete_card(id):
     try:
         db.session.commit()
         flash("Card Deleted!")
-        delete_record_from_s3(card)
+        if card.img_url: 
+            delete_record_from_s3(card)
         return redirect(f'/users/{card.user.id}')
     except:
         db.session.rollback()

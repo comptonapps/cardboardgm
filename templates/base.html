@@ -15,22 +15,24 @@
 <body>
     <nav>
         <div class="brand"><a href="/">CARDBOARDGM</a></div>
+        {% if g.user %}
         <ul class="nav-links">
             <li class="nav-link"><a href="/cards">Cards</a></li>
             <li class="nav-link"><a href="/users">Users</a></li>
             <li class="nav-link"><a href="users/{{g.user.id}}/requests">Requests</a></li>
             <li class="nav-link"><a href="/logout">Logout</a></li>
         </ul>
+        {% endif %}
     </nav>
-    <main>
+    <div class="app-container">
         {% for msg in get_flashed_messages() %}
         {{msg}}
         {% endfor %}
-        <div class="app-container">
+        
                 {% block content %}
                 {% endblock %}
-        </div>
         
-    </main>
+        
+    </div>
 </body>
 </html>
