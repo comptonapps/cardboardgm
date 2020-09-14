@@ -91,6 +91,13 @@ nav a, nav a:visited {
     justify-content: center;
 }
 
+.cover-page {
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+    background-image: url(https://www.invaluable.com/blog/wp-content/uploads/2018/04/invaluable-baseball-card-value-hero-v2.jpg);
+}
+
 .form-container {
     background-color: white;
     padding: 12px;

@@ -34,37 +34,4 @@
 </div>
 {% endif %}
 
-<script>
-    const searchBtn = document.querySelector("#search-btn");
-    console.log(searchBtn)
-    searchBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        console.log(setupTitle)
-        let collectionContainer = document.querySelector('#cc');
-        collectionContainer.style.opacity = 0;
-        let name = document.querySelector("#search-input").value;
-        let params;
-        if (name) {
-            params = {name}
-            setupTitle(name)
-        }
-        let resp = await axios.get('/api/cards', { params : params});
-        console.log(resp);
-        consoleLog(name);
-        
-        setTimeout(() => {
-            
-            collectionContainer.style.opacity = 1;
-        }, 800);
-        
-    })
-
-    function setupTitle(name) {
-        document.querySelector("#result-title").innerText = `Showing results for "${name}:"`;
-    }
-
-    function consoleLog(string) {
-        console.log(string);
-    }
-</script>
 {% endblock %}

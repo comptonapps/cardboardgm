@@ -29,11 +29,14 @@ def add_user_to_g():
         print(request.endpoint)
 
 
+@app.route('/index')
+def show_index():
+    return render_template('index.html')
 @app.route('/')
 def root_route():
     if g.user:
         return redirect(f'/users/{g.user.id}')
-    return redirect('/login')
+    return redirect('/index')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
