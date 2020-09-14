@@ -7,7 +7,7 @@
 body {
     font-family: 'Roboto Condensed', sans-serif;
     background-color: rgb(196, 196, 196);
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 body, html {
@@ -19,6 +19,8 @@ button {
     border: none;
     font-family: 'Roboto Condensed', sans-serif;
     border-radius: 8px;
+    text-transform: uppercase;
+    color: white;
 }
 
 nav {
@@ -75,6 +77,9 @@ nav a, nav a:visited {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
+    background-color: beige;
+    overflow: scroll;
+    padding: 12px;
 }
 
 .bullseye {
@@ -127,14 +132,157 @@ nav a, nav a:visited {
     height: 35px;
     width: 100%;
     background-color: blue;
-    color: white;
     font-size: 1rem;
     cursor: pointer;
 }
 
-.form-btn:active {
+.form-btn:active, .banner-btn:active {
     background-color: white;
     color: black;
+}
+
+.profile-img-full {
+    border-radius: 50%;
+    width: 150px;
+    border: 4px solid black;
+}
+
+.profile-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 12px;
+    color: white;
+    
+}
+
+.profile-summary p {
+    margin-bottom: 8px;
+}
+
+.blue {
+    background-color: rgb(14, 150, 230);
+}
+
+.green {
+    background-color: rgb(52, 201, 59);
+}
+
+.red {
+    background-color: rgb(235, 64, 64);
+}
+
+.dark-grey {
+    background-color: rgb(61, 59, 59);
+}
+
+.banner-btn {
+    padding: 8px;
+    width: 180px;
+    border-radius: 6px;
+}
+
+.collection-container {
+    padding: 12px;
+    transition: all 0.8s;
+}
+
+.collection-container h2 {
+    font-size: 1.4rem;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.cells-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.cells-container a, .cells-container a:visited {
+    text-decoration: none;
+    color: black;
+}
+
+.collection-cell {
+    border: 8px solid white;
+    border-radius: 6px;
+    width: 200px;
+    margin-bottom: 12px;
+    box-shadow: 3px 3px #888888;
+}
+
+.cell-image-container {
+    height: 180px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.cell-image-container img {
+    max-height: 160px;
+}
+
+.cell-title {
+    padding: 8px;
+    height: 100px;
+    line-height: 20px;
+}
+
+#edit-avatar {
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid black;
+}
+
+.card-detail-banner h1, .card-detail-banner h3 {
+    text-align: center;
+}
+
+.card-detail-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: first baseline;
+    height: 100%;
+}
+
+.card-detail-banner img {
+    width: 300px;
+}
+
+.title-search-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title-search-banner h1 {
+    font-size: 1.8rem;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-group {
+    display: flex;
+    width: 100%;
+}
+
+.search-input {
+    height: 30px;
+    flex: 1;
+}
+
+.search-btn {
+    background-color: rgb(87, 87, 87);
+    color: white;
+    width: 90px;
+    height: 30px;
+    margin-left: 6px;
 }
 
 @media(min-width:769px) {
@@ -144,5 +292,31 @@ nav a, nav a:visited {
 
     .form-container {
         margin-top: 30px;
+    }
+
+    .profile-img-full {
+        width: 300px;
+    }
+
+    .card-detail-banner img {
+        order: 0;
+    }
+
+    .title-search-banner {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .title-search-banner h1 {
+        font-size: 3rem;
+    }
+
+    .search-form {
+        width: 325px;
+    }
+
+    .search-group {
+        width: 100%;
     }
 }

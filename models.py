@@ -23,6 +23,9 @@ class User(db.Model):
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
 
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
 

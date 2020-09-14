@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, g, session, redirect, flash
+from flask import Flask, render_template, request, g, session, redirect, flash, jsonify
 from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm
@@ -26,6 +26,8 @@ def add_user_to_g():
         g.user = User.query.get(session[USER_ID])
     else:
         g.user = None
+        print(request.endpoint)
+
 
 @app.route('/')
 def root_route():
@@ -144,6 +146,11 @@ def delete_user(id):
         flash("Error deleting user")
         return redirect("/")
 
+@app.route('/cards')
+def show_cards():
+    cards = Card.query.all()
+    return render_template('cards.html', cards=cards)
+
 @app.route('/cards/<int:id>')
 def show_card(id):
     card = Card.query.get_or_404(id)
@@ -183,6 +190,18 @@ def delete_card(id):
         flash('Error deleting card')
         return redirect(request.url)
 
+@app.route('/api/cards')
+def get_cards():
+    name = request.args.get('name', None)
+    cards = []
+    if name: 
+        cards = Card.query.filter(Card.player.ilike(f'%{name}%'))
+    else:
+        cards = Card.query.all()
+    json = []
+    for card in cards:
+        json.append(card.serialize())
+    return jsonify(results=json)
 
 
 @app.route('/logout')

@@ -1,14 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{user.username}}</h1>
-<h2>Collection</h2>
-{% if g.user %}
-<a href="/users/{{user.id}}/add_card">Add To Collection</a>
-{% endif %}
-<div>
-{% for card in user.cards %}
-<a href="/cards/{{card.id}}">{{card.to_string()}}</a>
-{% endfor %}
+<div class="profile-summary blue">
+    <img src="{% if not user.img_url%}
+    /static/images/no-avatar.png
+    {% else %}
+    {{user.img_url}}
+    {% endif %}" alt="profile image" class="profile-img-full">
+    <h1>{{user.username}}</h1>
+    <p>{{user.full_name()}}</p>
+    {% if g.user.id == user.id %}
+    <form action="/users/{{g.user.id}}/edit">
+        <button class="banner-btn dark-grey">Edit Profile</button>
+    </form>
+    {% endif %}
+</div>
+<div class="collection-container">
+    <h2>Collection</h2>
+    {% if g.user.id == user.id %}
+    <a href="/users/{{user.id}}/add_card" class="form-btn">Add To Collection</a>
+    {% endif %}
+    <div>
+        {% if user.cards %}
+        <div class="cells-container">
+        {% for card in user.cards %}
+            <a href="/cards/{{card.id}}">
+                <div class="collection-cell">
+                    <div class="cell-image-container">
+                        <img src=
+                        {% if card.img_url %}
+                        "{{card.thumb_url()}}"
+                        {% else %}
+                        "/static/images/default.jpg"
+                        {% endif %}
+                         alt="">
+                    </div>
+                    <p class="cell-title">{{card.to_string()}}</p>
+                </div>
+            </a>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="title-search-banner">
+<h1>Search Cards</h1>
+<form action="/api/cards" class='search-form'>
+    <div class="search-group">
+        <input type="text" id="search-input">
+        <button  id="search-btn">Search</button>
+    </div>
+</form>
+</div>
+<div class="collection-container" id="cc">
+{% if cards|length > 0 %}
+<h2 id="result-title">Showing All Cards</h2>
+<div class="cells-container">
+{% for card in cards %}
+<a href="/cards/{{card.id}}">
+    <div class="collection-cell">
+        <div class="cell-image-container">
+            <img src=
+            {% if card.img_url %}
+            "{{card.thumb_url()}}"
+            {% else %}
+            "/static/images/default.jpg"
+            {% endif %}
+             alt="">
+        </div>
+        <p class="cell-title">{{card.to_string()}}</p>
+    </div>
+</a>
+{% endfor %}
+</div>
+</div>
+{% endif %}
+
+<script>
+    const searchBtn = document.querySelector("#search-btn");
+    console.log(searchBtn)
+    searchBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log(setupTitle)
+        let collectionContainer = document.querySelector('#cc');
+        collectionContainer.style.opacity = 0;
+        let name = document.querySelector("#search-input").value;
+        let params;
+        if (name) {
+            params = {name}
+            setupTitle(name)
+        }
+        let resp = await axios.get('/api/cards', { params : params});
+        console.log(resp);
+        consoleLog(name);
+        
+        setTimeout(() => {
+            
+            collectionContainer.style.opacity = 1;
+        }, 800);
+        
+    })
+
+    function setupTitle(name) {
+        document.querySelector("#result-title").innerText = `Showing results for "${name}:"`;
+    }
+
+    function consoleLog(string) {
+        console.log(string);
+    }
+</script>
+{% endblock %}

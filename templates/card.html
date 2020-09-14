@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{card.to_string()}}</h1>
-<img src="{{card.full_img_url()}}" alt="">
-{% if card.user.id == g.user.id %}
-<a href="/cards/{{card.id}}/edit">Edit Card</a>
-{% endif %}
+<div class="card-detail-banner">
+    <h1>{{card.to_string()}}</h1>
+    <h3>Owner: {{card.user.username}}</h3>
+    <img src="{{card.full_img_url()}}" alt="">
+    {% if card.user.id == g.user.id %}
+    <form action="/cards/{{card.id}}/edit">
+        <button class='banner-btn blue'>Edit Card</button>
+    </form>
+    
+    {% endif %}
+</div>
+
 <script src="/static/scripts/alert.js"></script>
 {% endblock %}
