@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="two-item-banner">
+    <h1>MANAGERS</h1>
+    
+    
+    <form action="">
+        <div class="form-group">
+            <input type="text" class="search-field">
+            <button class="search-btn">Search</button>
+        </div>
+    </form>
+</div>
+<div class="cells-container">
+    {% for user in users %}
+    <a href="/users/{{user.id}}">
+        <div class="collection-cell">
+            <div class="cell-image-container">
+                <img src="/static/images/no-avatar.png" class="avatar" alt="">
+            </div>
+            <p class="cell-title-user">{{user.username}}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+<script>
+    const searchBtn = document.querySelector(".search-btn");
+    searchBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        let input = document.querySelector(".search-field").value
+        let resp = await axios.get('/api/users', {params : { 'name' : input}})
+        document.querySelector('.cells-container').innerHTML = "";
+        for (user of resp.data) {
+            let newCell = new Cell(user, false);
+            document.querySelector('.cells-container').append(newCell.cell);
+        }
+    })
+</script>
+{% endblock %}

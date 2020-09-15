@@ -12,7 +12,7 @@
     {% endif %}
     alt="" id="edit-avatar">
 <div class="form-container">
-    <form method='POST'>
+    <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}
         
             {% for field in form

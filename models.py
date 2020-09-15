@@ -48,6 +48,18 @@ class User(db.Model):
         else:
             return False
 
+    def imgurl(self):
+        return f"{AWS_URL}{self.img_url}"
+
+    def serialize(self):
+        return {'username'   : self.username,
+                'first_name' : self.first_name,
+                'last_name'  : self.last_name,
+                'email'      : self.email,
+                'id'         : self.id,
+                }
+
+
 class CardMaster(db.Model):
 
     __tablename__ = "card_masters"

@@ -78,6 +78,12 @@ def register_user():
                 return redirect('/register')
     return render_template('register.html', form=form)
 
+
+@app.route('/users')
+def show_users():
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
 @app.route('/users/<int:id>')
 def show_user(id):
     user = User.query.get_or_404(id)
@@ -95,10 +101,24 @@ def edit_user_form(id):
         user.last_name = form.last_name.data
         try:
             db.session.commit()
-            return redirect(f'/users/{user.id}')
+            if form.image.data:
+                try:
+                    img = Image.open(request.files[form.image.name])
+                    flash("We got the image")
+                    size = (300, 300)
+                    img.thumbnail(size)
+                    key_stub = f"profile-images/{id}/{id}_full"
+                    file_key = handle_image_upload(img, key_stub)
+                    print(file_key)
+                    user.img_url = file_key
+                    db.session.commit()
+                    return redirect(f'/users/{user.id}')
+                except:
+                    flash("Image Error")
+                    return redirect(f'/users/{user.id}')
         except:
-            flash("Changes could not be saved")
-            
+                    flash("Changes could not be saved")
+                    return redirect(f'/users/{user.id}')
     return render_template('edit-user.html', user=user, form=form)
 
 @app.route('/users/<int:id>/add_card', methods=['GET', 'POST'])
@@ -206,6 +226,20 @@ def get_cards():
         json.append(card.serialize())
     return jsonify(results=json)
 
+@app.route('/api/users')
+def get_users():
+    username = request.args.get('name', None)
+    user_results = []
+    if username:
+        query_results = User.query.filter(User.username.ilike(f'%{username}%'))
+        for result in query_results:
+            user_results.append(result.serialize())
+    else:
+        all_users = User.query.all()
+        for user in all_users:
+            user_results.append(user.serialize())
+    return jsonify(user_results)
+
 
 @app.route('/logout')
 def logout_user():
@@ -215,3 +249,10 @@ def logout_user():
 
 def add_user_to_session(user):
     session[USER_ID] = user.id
+
+@app.route("/foobar")
+def foobar():
+    user = User.query.get_or_404(11)
+    user.img_url = None
+    db.session.commit()
+    return redirect("/")
