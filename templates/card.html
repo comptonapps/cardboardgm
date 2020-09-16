@@ -9,9 +9,29 @@
     <form action="/cards/{{card.id}}/edit">
         <button class='banner-btn blue'>Edit Card</button>
     </form>
+    <form>
+        <button data-search="{{card.to_string()}}" id="search-btn">Search Ebay</button>
+    </form>
     
     {% endif %}
 </div>
 
-<script src="/static/scripts/alert.js"></script>
+<!-- <script src="/static/scripts/alert.js"></script> -->
+<script>
+    const searchBtn = document.querySelector('#search-btn');
+    searchBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        const body = document.querySelector('body');
+        const modal = new ModalWindow().modalWindow;
+        body.append(modal);
+        const resultsContainer = document.createElement('div')
+        resultsContainer.classList.add('results-container');
+        modal.append(resultsContainer);
+        let res = await axios.get('/api/ebay', { params : {'item' : searchBtn.dataset.search }})
+        for (item of res.data) {
+            let cell = new EbayCell(item).cell;
+            resultsContainer.append(cell);
+        }
+    })
+</script>
 {% endblock %}

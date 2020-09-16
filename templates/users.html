@@ -32,8 +32,11 @@
         let resp = await axios.get('/api/users', {params : { 'name' : input}})
         document.querySelector('.cells-container').innerHTML = "";
         for (user of resp.data) {
+            const cellLink = document.createElement('a');
+            cellLink.setAttribute('href', `/users/${user.id}`)
             let newCell = new Cell(user, false);
-            document.querySelector('.cells-container').append(newCell.cell);
+            cellLink.append(newCell.cell)
+            document.querySelector('.cells-container').append(cellLink);
         }
     })
 </script>

@@ -5,6 +5,7 @@ from forms import LoginForm, RegisterForm, CardForm, EditUserForm
 from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
+from ebay_api import get_recent_prices
 import io
 
 USER_ID = "user_id"
@@ -256,3 +257,10 @@ def foobar():
     user.img_url = None
     db.session.commit()
     return redirect("/")
+
+@app.route("/api/ebay")
+def ebay():
+
+    query_string = request.args.get('item')
+    return get_recent_prices(query_string)
+

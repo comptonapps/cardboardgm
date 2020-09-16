@@ -1,6 +1,5 @@
 class ModalWindow {
     constructor() {
-        alert("Initialized")
         this.modalWindow = document.createElement('div')
         this.closeButton = document.createElement('button')
         this.init()

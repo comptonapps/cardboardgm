@@ -8,6 +8,7 @@ body {
     font-family: 'Roboto Condensed', sans-serif;
     background-color: rgb(196, 196, 196);
     overflow-x: hidden;
+    position: relative;
 }
 
 body, html {
@@ -206,7 +207,7 @@ input[type='file'] {
 .cells-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 20px;
 }
 
@@ -219,7 +220,7 @@ input[type='file'] {
     border: 8px solid white;
     border-radius: 6px;
     width: 200px;
-    margin-bottom: 12px;
+    margin: 4px;
     box-shadow: 3px 3px #888888;
 }
 
@@ -318,6 +319,69 @@ input[type='file'] {
 
 .avatar {
     border-radius: 50%;
+}
+
+.modal-window {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.close-btn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    padding: 12px;
+    background-color: gray;
+}
+
+.results-container {
+    height: 75%;
+    width: 80%;
+    max-width: 550px;
+    overflow: scroll;
+}
+
+.ebay-cell {
+    background-color: white;
+    border-bottom: 2px solid black;
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.ebay-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 22%;
+
+}
+
+.ebay-image-container img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.ebay-title-container {
+    width: 60%;
+    font-size: 0.9rem;
+
+}
+
+.ebay-price {
+    padding: 0 12px;
+    width: 15%;
 }
 
 @media(min-width:769px) {
