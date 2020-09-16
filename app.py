@@ -172,7 +172,7 @@ def delete_user(id):
 
 @app.route('/cards')
 def show_cards():
-    cards = Card.query.all()
+    cards = Card.query.order_by(Card.year.desc()).all()
     return render_template('cards.html', cards=cards)
 
 @app.route('/cards/<int:id>')

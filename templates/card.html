@@ -2,16 +2,26 @@
 
 {% block content %}
 <div class="card-detail-banner">
-    <h1>{{card.to_string()}}</h1>
-    <h3>Owner: {{card.user.username}}</h3>
-    <img src="{{card.full_img_url()}}" alt="">
+    <div class="banner-info">
+        <h1>{{card.to_string()}}</h1>
+        <h3>OWNER: <a href="/users/{{card.owner_id}}">{{card.user.username}}</a></h3>
+        <div class="button-box">
+            <form action="/cards/{{card.id}}/edit">
+                <button class='banner-btn blue'>Edit Card</button>
+            </form>
+            <form>
+                <button data-search="{{card.to_string()}}" id="search-btn" class="banner-btn green">Search Ebay</button>
+            </form>
+        </div>
+        
+    </div>
+    <div class="banner-card-container">
+        <img src="{{card.full_img_url()}}" alt="">
+        <button id="detail-btn" class="banner-btn green" data-url="{{card.full_img_url()}}"">View Large Image</button>
+    </div>
+    
     {% if card.user.id == g.user.id %}
-    <form action="/cards/{{card.id}}/edit">
-        <button class='banner-btn blue'>Edit Card</button>
-    </form>
-    <form>
-        <button data-search="{{card.to_string()}}" id="search-btn">Search Ebay</button>
-    </form>
+    
     
     {% endif %}
 </div>
@@ -19,9 +29,10 @@
 <!-- <script src="/static/scripts/alert.js"></script> -->
 <script>
     const searchBtn = document.querySelector('#search-btn');
+    const detailBtn = document.querySelector('#detail-btn');
+    const body = document.querySelector('body');
     searchBtn.addEventListener('click', async function(e) {
         e.preventDefault();
-        const body = document.querySelector('body');
         const modal = new ModalWindow().modalWindow;
         body.append(modal);
         const resultsContainer = document.createElement('div')
@@ -33,5 +44,15 @@
             resultsContainer.append(cell);
         }
     })
+    detailBtn.addEventListener('click', function(){
+        const modal = new ModalWindow().modalWindow;
+        body.append(modal);
+        const detailedImage = document.createElement('img');
+        detailedImage.classList.add('detail-img')
+        detailedImage.setAttribute('src', detailBtn.dataset.url);
+        modal.append(detailedImage);
+    })
+
+
 </script>
 {% endblock %}

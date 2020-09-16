@@ -78,7 +78,7 @@ nav a, nav a:visited {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    background-color: beige;
+    background-color: rgb(231, 231, 231);
     overflow: scroll;
     padding: 12px;
 }
@@ -191,6 +191,7 @@ input[type='file'] {
     padding: 8px;
     width: 180px;
     border-radius: 6px;
+    margin: 6px;
 }
 
 .collection-container {
@@ -258,6 +259,11 @@ input[type='file'] {
 
 .card-detail-banner h1, .card-detail-banner h3 {
     text-align: center;
+
+}
+
+.card-detail-banner h1 {
+    text-transform: uppercase;
 }
 
 .card-detail-banner {
@@ -270,6 +276,21 @@ input[type='file'] {
 
 .card-detail-banner img {
     width: 300px;
+}
+
+.banner-card-container {
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.button-box {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
 }
 
 .title-search-banner {
@@ -384,6 +405,11 @@ input[type='file'] {
     width: 15%;
 }
 
+.detail-img {
+    max-height: 75%;
+    max-width: 80%;
+}
+
 @media(min-width:769px) {
     .bullseye {
         justify-content: flex-start;
@@ -431,5 +457,36 @@ input[type='file'] {
     .two-item-banner {
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    .card-detail-banner {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .banner-card-container {
+        order: 1;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .card-detail-banner h1, .card-detail-banner h3 {
+        text-align: left;
+    
+    }
+
+    .banner-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        order: 2;
+    }
+
+    .button-box {
+        align-items: flex-start;
+        justify-content: flex-start;
+        margin-left: 0;
+        padding-left: 0;
     }
 }
