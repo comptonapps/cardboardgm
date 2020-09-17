@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+    <script src="/static/scripts/modalWindow.js"></script>
+    <!-- <script src="/static/scripts/alert.js" type="module"></script> -->
+    
+</head>
+<body>
+    <script>
+        let ac = new AlertController('TEST', 'message', function() {
+            window.location.href = "/users";
+        });
+        console.log(ac.msg);
+        document.querySelector('body').append(ac.ac);
+    </script>
+</body>
+</html>

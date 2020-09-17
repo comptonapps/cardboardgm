@@ -267,3 +267,7 @@ def ebay():
     query_string = request.args.get('item')
     return get_recent_prices(query_string)
 
+@app.route('/ac')
+def ac():
+    return render_template('testAlert.html')
+
