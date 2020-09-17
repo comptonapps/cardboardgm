@@ -1,16 +1,19 @@
+import ModalWindow from './modalWindow'
+
 class AlertController{
     constructor(title, msg, callback) {
         this.title = title
         this.msg = msg
-        this.element = document.createElement('div');
+        this.window = new ModalWindow();
         this.init()
     }
 
     init() {
-        this.setupElement();
-        this.addTitle();
-        this.addMsg()
-        this.addFormButtons();
+        // this.setupElement();
+        // this.addTitle();
+        // this.addMsg()
+        // this.addFormButtons();
+        alert("MADE IT")
     }
 
     setupElement() {
@@ -49,4 +52,3 @@ let alertController = new AlertController("HELL", "YES", function() {
     alert("Callback")
 });
 
-document.querySelector('body').append(alertController.element);
