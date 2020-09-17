@@ -34,18 +34,12 @@
         <form action="/cards/{{card.id}}">
             <button class="form-btn blue">Cancel</button>
         </form>
-<<<<<<< HEAD
         <form action="/cards/{{card.id}}/delete" method='POST'>
             <button id="delete-btn">Delete Card</button>
-=======
-        <form>
-            <button class="form-btn red" id="delete-btn">Delete Card</button>
->>>>>>> b3d1bab121f975db59b0ecf5d76c9f178c33dbba
         </form>
     </div>
 </div>
 <script>
-<<<<<<< HEAD
     let notConfirmed = true;
     const cardId = "{{card.id}}";
     const deleteBtn = document.querySelector('#delete-btn');
@@ -62,13 +56,6 @@
         
 
         
-=======
-    const deleteURL = "/cards/{{card.id}}/delete";
-    const deleteBtn = document.querySelector('#delete-btn');
-    const body = document.querySelector('body');
-    deleteBtn.addEventListener('click', function() {
-        alert("DELETE")
->>>>>>> b3d1bab121f975db59b0ecf5d76c9f178c33dbba
     })
 </script>
 {% endblock%}

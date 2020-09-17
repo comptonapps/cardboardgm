@@ -32,4 +32,20 @@ class EbayCell {
         return cell;
         
     }
+
+    getImageContainer() {
+
+    }
+
+    getTitleContainer() {
+
+    }
+
+    getTitleLink() {
+
+    }
+
+    getPriceContainer() {
+        
+    }
 }

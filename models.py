@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy 
 from flask_bcrypt import Bcrypt 
 from constants import AWS_URL
+import datetime
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
