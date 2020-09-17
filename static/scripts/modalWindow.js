@@ -27,11 +27,12 @@ class ModalWindow {
 }
 
 class AlertController {
-    constructor(title, msg, callback) {
+    constructor(title, msg, actionText, callback) {
         this.ac;
         this.title = title;
         this.msg = msg;
         this.callback = callback;
+        this.actionText = actionText;
         this.init();
     }
 
@@ -78,7 +79,7 @@ class AlertController {
 
     getActionButton() {
         const actionBtn = this.newElement('button');
-        actionBtn.innerText = "ALERT"
+        actionBtn.innerText = this.actionText;
         actionBtn.classList.add('form-btn', 'red');
         actionBtn.addEventListener('click', () => {
             this.callback();
