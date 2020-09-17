@@ -241,6 +241,9 @@ def get_users():
             user_results.append(user.serialize())
     return jsonify(user_results)
 
+@app.route('/users/<int:id>/requests')
+def show_requests(id):
+    return render_template('requests.html');
 
 @app.route('/logout')
 def logout_user():

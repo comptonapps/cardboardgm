@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>EDIT CARD</h1>
-<div class="form-container">
-
-    <form method='POST'>
+<div class="bullseye">
+    <div class="form-container">
+        <h1>EDIT CARD</h1>
+        <div class="form-img-container">
+            <img src="{% if card.img_url %}
+                  {{card.thumb_url()}}
+                  {% else %}
+                  /static/images/default.jpg
+                  {% endif %}" alt="">
+        </div>
+        <form method='POST'>
             {{ form.hidden_tag() }}
         
             {% for field in form
@@ -22,14 +29,22 @@
             {% endfor %}
         
             {% endfor %}
-            <button>Save Changes</button>
+            <button class="form-btn green">Save Changes</button>
+        </form>
+        <form action="/cards/{{card.id}}">
+            <button class="form-btn blue">Cancel</button>
         </form>
         <form>
-            <button>Cancel</button>
+            <button class="form-btn red" id="delete-btn">Delete Card</button>
         </form>
-        <form action="/cards/{{card.id}}/delete" method='POST'>
-            <button>Delete Card</button>
-        </form>
-
+    </div>
 </div>
+<script>
+    const deleteURL = "/cards/{{card.id}}/delete";
+    const deleteBtn = document.querySelector('#delete-btn');
+    const body = document.querySelector('body');
+    deleteBtn.addEventListener('click', function() {
+        alert("DELETE")
+    })
+</script>
 {% endblock%}
