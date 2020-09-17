@@ -22,14 +22,14 @@
         <ul class="nav-links">
             <li class="nav-link"><a href="/cards">Cards</a></li>
             <li class="nav-link"><a href="/users">Users</a></li>
-            <li class="nav-link"><a href="users/{{g.user.id}}/requests">Requests</a></li>
+            <li class="nav-link"><a href="/users/{{g.user.id}}/requests">Requests</a></li>
             <li class="nav-link"><a href="/logout">Logout</a></li>
         </ul>
         {% endif %}
     </nav>
     <div class="app-container">
         {% for msg in get_flashed_messages() %}
-        {{msg}}
+        <p class="flash-msg">{{msg}}</p>
         {% endfor %}
         
                 {% block content %}

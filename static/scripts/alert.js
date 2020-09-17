@@ -17,7 +17,7 @@ class AlertController{
     }
 
     setupElement() {
-        this.element.id = 'testersChoice';
+        this.element.id = 'alert-container';
     }
 
     addTitle() {
@@ -29,15 +29,15 @@ class AlertController{
 
     addMsg() {
         let h3 = this.getNewElement('h3');
-        h3.innerText = "Tommy Boy";
+        h3.innerText = this.message;
         this.element.append(h3);
     }
 
     addFormButtons() {
         let button = this.getNewElement('button')
-        button.innerText = "PRESS ME"
+        button.innerText = "CANCEL"
         button.addEventListener('click', function() {
-            let el = document.querySelector('#testersChoice');
+            let el = document.querySelector('.modal');
             el.remove();
         })
         this.element.append(button)
@@ -48,7 +48,5 @@ class AlertController{
     }
 }
 
-let alertController = new AlertController("HELL", "YES", function() {
-    alert("Callback")
-});
+let alertController = new AlertController(title, message, callback)
 

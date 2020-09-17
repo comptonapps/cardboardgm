@@ -6,9 +6,15 @@
         <h1>{{card.to_string()}}</h1>
         <h3>OWNER: <a href="/users/{{card.owner_id}}">{{card.user.username}}</a></h3>
         <div class="button-box">
+            {% if card.owner_id == g.user.id %}
             <form action="/cards/{{card.id}}/edit">
                 <button class='banner-btn blue'>Edit Card</button>
             </form>
+            {% else %}
+            <form action="">
+                <button class='banner-btn blue'>View Requests</button>
+            </form>
+            {% endif %}
             <form>
                 <button data-search="{{card.to_string()}}" id="search-btn" class="banner-btn green">Search Ebay</button>
             </form>
@@ -16,8 +22,14 @@
         
     </div>
     <div class="banner-card-container">
-        <img src="{{card.full_img_url()}}" alt="">
+        <img src="{% if card.img_url %}
+                  {{card.full_img_url()}}
+                  {% else %}
+                  /static/images/default.jpg
+                  {% endif %}" alt="">
+        {% if card.img_url %}
         <button id="detail-btn" class="banner-btn green" data-url="{{card.full_img_url()}}"">View Large Image</button>
+        {% endif %}
     </div>
     
     {% if card.user.id == g.user.id %}
