@@ -7,6 +7,7 @@ from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
 import io
+import json
 
 USER_ID = "user_id"
 
@@ -216,16 +217,42 @@ def delete_card(id):
 
 @app.route('/api/cards')
 def get_cards():
-    name = request.args.get('name', None)
-    cards = []
-    if name: 
-        cards = Card.query.filter(Card.player.ilike(f'%{name}%'))
+    # tokens = request.args.get('fart', None)
+    # print(f'\n\n{tokens}\n\n')
+    # cards = Card.query.filter(Card.player.ilike(f'%{tokens}%')).all()
+    # print(cards)
+    
+    # for card in cards:
+    #     print(card.player)
+    # # print(request.args['fart'])
+    # raise
+    # cards = []
+    # if name: 
+    #     cards = Card.query.filter(Card.player.ilike(f'%{name}%'))
+    # else:
+    #     cards = Card.query.all()
+    # json = []
+    # for card in cards:
+    #     json.append(card.serialize())
+    # return jsonify(results=json)
+    results = []
+    tokens = request.args.get('tokens', None)
+    if tokens:
+        json_tokens = json.loads(tokens)
+        query = Card.query
+        for token in json_tokens:
+            query = query.filter(Card.player.ilike(f'%{token}%'))
+        cards = query.all()
+        for card in cards:
+            results.append(card.serialize())
+        return jsonify(results=results)
     else:
         cards = Card.query.all()
-    json = []
-    for card in cards:
-        json.append(card.serialize())
-    return jsonify(results=json)
+        for card in cards:
+            results.append(card.serialize())
+        return jsonify(results=results)
+
+
 
 @app.route('/api/users')
 def get_users():
@@ -271,3 +298,23 @@ def ebay():
 def ac():
     return render_template('testAlert.html')
 
+@app.route('/checks')
+def checks():
+    return render_template('checksTest.html')
+
+@app.route('/json')
+def test_json():
+    card = Card.query.first()
+    card_json = card.serialize()
+    return render_template('test-json.html', json=card_json)
+
+@app.route('/tokens')
+def test_tokens():
+    query = Card.query
+    tokens = ["ke", "gr", "ey"]
+    for token in tokens:
+        query = query.filter(Card.player.ilike(f'%{token}%'))
+    cards = query.all()
+    for card in cards:
+        print(card.to_string())
+    return "FOO"

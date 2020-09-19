@@ -35,7 +35,7 @@
             <button class="form-btn blue">Cancel</button>
         </form>
         <form action="/cards/{{card.id}}/delete" method='POST'>
-            <button id="delete-btn">Delete Card</button>
+            <button id="delete-btn" class="form-btn red">Delete Card</button>
         </form>
     </div>
 </div>
@@ -47,9 +47,10 @@
     deleteBtn.addEventListener('click', function(e){
         if (notConfirmed) {
             e.preventDefault();
-        let ac = new AlertController("DELETE CARD", "Are you sure you want to delete this item?", "DELETE", function() {
+        let ac = new AlertController("DELETE CARD", "Are you sure you delete this card??", "DELETE", function() {
             notConfirmed = false;
             deleteBtn.click();
+            
         });
         body.append(ac.ac);
         } 

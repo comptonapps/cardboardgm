@@ -90,7 +90,10 @@ class Card(db.Model):
                 'set_name'    : self.set_name,
                 'number'      : self.number,
                 'description' : self.desc,
-                'img_url'     : self.img_url}
+                'img_url'     : self.img_url,
+                'title'       : self.to_string(),
+                'thumb_url'   : self.thumb_url(),
+                'full_url'    : self.full_img_url()}
 
     def to_string(self):
         return f"{self.year} {self.set_name} #{self.number} {self.player} {self.desc}"

@@ -36,9 +36,25 @@
             <button class="form-btn">Cancel</button>
         </form>
         <form action="/users/{{user.id}}/delete" method='POST'>
-            <button class="form-btn red">Delete Account</button>
+            <button class="form-btn red" id="delete-btn">Delete Account</button>
         </form>
 
+    </div>
 </div>
-</div>
+<script>
+    const deleteBtn = document.querySelector('#delete-btn');
+    const body = document.querySelector('body');
+    let notConfirmed = true;
+    deleteBtn.addEventListener('click', (e) => {
+        if (notConfirmed) {
+            e.preventDefault();
+            const ac = new AlertController("DELETE ACCOUNT", "Are you sure you want to delete your account?", "DELETE ACCOUNT", function() {
+                notConfirmed = false;
+                deleteBtn.click();
+            });
+            body.append(ac.ac);
+        }
+    });
+    
+</script>
 {% endblock%}

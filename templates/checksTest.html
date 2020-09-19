@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+   <p><input type="checkbox" class="box" value="1">1</p>
+   <p><input type="checkbox" class="box" value="2">2</p>
+   <p><input type="checkbox" class="box" value="3">3</p>
+   <p><input type="checkbox" class="box" value="4">4</p>
+   <p><input type="checkbox" class="box" value="5">5</p>
+</div>
+<ul id="results"> </p>
+   <button id="check-btn">CHECK</button>
+   <script>
+       const checkBtn = document.querySelector('#check-btn');
+       const container = document.querySelector(".container");
+       const resulstList = document.querySelector("#results");
+       container.addEventListener('click', function(e) {
+           if (e.target.classList.contains('box')) {
+               if (e.target.checked) {
+                   let newLi = document.createElement('li');
+                   newLi.setAttribute('id', `${e.target.value}`);
+                   newLi.innerText = e.target.value;
+                   console.log(newLi)
+                   resulstList.append(newLi)
+               } else if (!e.target.checked) {
+                   document.getElementById(`${e.target.value}`).remove();
+               }
+           }
+       })
+       checkBtn.addEventListener('click', function() {
+        let checkboxes = document.getElementsByClassName('box');
+        for (box of checkboxes) {
+            console.log(box.checked == true);
+        }
+       })
+
+   </script>
+</body>
+</html>

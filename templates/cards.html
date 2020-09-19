@@ -33,5 +33,33 @@
 </div>
 </div>
 {% endif %}
+<script>
+    const cellsContainer = document.querySelector('.cells-container')
+    const searchBtn = document.querySelector('.search-btn');
+    searchBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        let query = document.querySelector("#search-input").value;
+        let tokens;
+        if (query) {
+            tokens = document.querySelector("#search-input").value.split(" ");
+        }
+        
+        let res = await axios.get('/api/cards', { params : { 'tokens' : JSON.stringify(tokens) } })
+
+        if (res.data.results.length > 0) {
+            cellsContainer.innerHTML = "";
+            for (card of res.data.results) {
+                console.log(card)
+                let cell = new Cell(card, true);
+                cellsContainer.append(cell.cell);
+            }
+        } 
+        else {
+            cellsContainer.innerHTML = ""
+            cellsContainer.innerText = "No results found"
+            
+        }
+    });
+</script>
 
 {% endblock %}
