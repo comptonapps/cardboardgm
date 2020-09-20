@@ -11,8 +11,8 @@
                 <button class='banner-btn blue'>Edit Card</button>
             </form>
             {% else %}
-            <form action="">
-                <button class='banner-btn blue'>View Requests</button>
+            <form action="/cards/{{card.id}}/request">
+                <button class='banner-btn blue'>Request Trade</button>
             </form>
             {% endif %}
             <form>

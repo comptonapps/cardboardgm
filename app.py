@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, g, session, redirect, flash, jsonify
 from secrets import FLASK_SECRET_KEY
-from models import db, connect_db, User, Card
+from models import db, connect_db, User, Card, TimeTest
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm
 from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
@@ -8,6 +8,7 @@ from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
 import io
 import json
+import datetime
 
 USER_ID = "user_id"
 
@@ -34,6 +35,7 @@ def add_user_to_g():
 @app.route('/index')
 def show_index():
     return render_template('index.html')
+
 @app.route('/')
 def root_route():
     if g.user:
@@ -200,6 +202,12 @@ def edit_card(id):
             flash("error saving changes")
     return render_template('edit-card.html', form=form, card=card)
 
+@app.route('/cards/<int:id>/request')
+def request_trade(id):
+    card = Card.query.get_or_404(id)
+    msg = f"Request for {card.to_string()} from user {g.user.username}"
+    return render_template('request.html', msg=msg)
+
 @app.route('/cards/<int:id>/delete', methods=['POST'])
 def delete_card(id):
     card = Card.query.get_or_404(id)
@@ -318,3 +326,22 @@ def test_tokens():
     for card in cards:
         print(card.to_string())
     return "FOO"
+
+@app.route('/time')
+def test_time():
+    time = TimeTest()
+    db.session.add(time)
+    db.session.commit()
+    return "TIME"
+
+@app.route('/localtime')
+def local_time():
+    time = TimeTest.query.get(1)
+    localtime = float(time.time.strftime("%s"))
+    #converted = datetime.datetime.fromtimestamp(converted)
+    #return f"{datetime.datetime.fromtimestamp(localtime)}"
+    UTC_datetime = datetime.datetime.utcnow()
+    UTC_datetime_timestamp = float(UTC_datetime.strftime("%s"))
+    UTC_datetime_timestamp = float(UTC_datetime.strftime("%s"))
+    local_datetime_converted = datetime.datetime.fromtimestamp(UTC_datetime_timestamp)
+    return f"{local_datetime_converted}"

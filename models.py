@@ -23,6 +23,7 @@ class User(db.Model):
     img_url = db.Column(db.Text)
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
+    requests = db.relationship("TradeRequest", backref="users", cascade='all, delete-orphan')
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -107,4 +108,31 @@ class Card(db.Model):
             return f"{AWS_URL}{thumbnail_url}"
         else:
             return None
+
+class TradeRequest(db.Model):
+
+    __tablename = "trade_requests"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    from_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    to_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False))
+    accepted = db.Column(db.Boolean, default=None)
+
+    cards = db.relationship('Card', secondary='request_cards', backref="trade_requests")
+
+class RequestCards(db.Model):
+
+    __tablename = "request_cards"
+
+    id = db.Column(db.Integer, primary_key=True autoincrement=True)
+    request_id = db.Column(db.Integer, db.ForeignKey("trade_requests.id", ondelete="CASCADE"), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), nullable=False)
+
+
+class TimeTest(db.Model):
+
+    __tablename__ = "times"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    time = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 
