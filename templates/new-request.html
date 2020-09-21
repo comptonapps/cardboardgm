@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bullseye">
+    <div class="trade-container">
+        <h3>TRADE REQUEST for {{requested_card.to_string()}}</h3>
+        <input type="text" placeholder="Search by Player Name">
+        <button>SEARCH</button>
+        <h4>SELECT CARDS TO OFFER</h4>
+        <div class="user-cards">
+            {% if cards %}
+            {% for card in cards %}
+            <div class="trade-cell">
+                <input type="checkbox" name="card" id="{{card.id}}">
+                <label for="{{card.id}}">{{card.title}}</label>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No cards in collection</p>
+            {% endif %}
+        </div>
+        <h4>SELECTED CARDS</h4>
+        <div class="selected-cards">
+
+        </div>
+        <a href="/cards/{{requested_card.id}}"><button id="cancel-btn">CANCEL</button></a>
+        
+        <button disabled id="send-btn">SEND TRADE</button>
+    </div>
+</div>
+<script>
+    const cards = {{cards|tojson}};
+    const requestedCardId = {{requested_card.id}};
+    const to_id = {{requested_card.owner_id}};
+    const from_id = {{g.user.id}};
+    let offeredCards = [];
+    console.log(requestedCardId)
+    const userCards = document.querySelector('.user-cards');
+    const selectedCards = document.querySelector('.selected-cards')
+    const sendBtn = document.querySelector('#send-btn')
+    userCards.addEventListener('click', function(e) {
+        let target = e.target
+        if (target.tagName === 'INPUT' && target.checked) {
+            selectedCards.append(selectCard(target.id));
+            sendBtn.disabled = false;
+        }
+    })
+
+    selectedCards.addEventListener('click', function(e){
+        let target = e.target;
+        if (target.tagName === 'INPUT') {
+            target.parentElement.remove();
+        }
+        document.getElementById(`${target.dataset.id}`).checked = false;
+        if (document.getElementsByClassName('selected-cell').length === 0) {
+            sendBtn.disabled = true;
+        } 
+    })
+
+    sendBtn.addEventListener('click', async function() {
+        let selectedCells = document.getElementsByClassName('selected-cell')
+        console.log(document.getElementsByClassName('selected-cell'));
+        for (cell of selectedCells) {
+            offeredCards.push(parseInt(cell.dataset.id))
+            console.log(cell.dataset)
+        }
+        let params = {to_id, from_id, offeredCards, requestedCardId}
+        let res = axios.post(`/cards/${requestedCardId}/new-request`, {request : params});
+
+    })
+
+    function selectCard(id) {
+        const cardID = parseInt(id);
+        const title = cards.find(el => el.id === cardID).title;
+        console.log(title)
+        return new TradeCell(cardID, title).cell
+
+    }
+
+    class TradeCell {
+        constructor(id, title) {
+            this.id = id;
+            this.title = title;
+            this.cell;
+            this.init()
+        }
+
+        init() {
+            this.cell = this.getCellHousing();
+            this.cell.append(this.getCheckbox());
+            this.cell.append(this.getLabel())
+        }
+
+        getCellHousing() {
+            let cell = document.createElement('div');
+            cell.classList.add('selected-cell');
+            cell.dataset.id = `${this.id}`
+            return cell;
+        }
+
+        getCheckbox() {
+            let checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.id = `${this.id}`
+            checkbox.id = `select-${this.id}`;
+            checkbox.checked = true;
+            return checkbox;
+        }
+
+        getLabel() {
+            let label = document.createElement('label');
+            label.innerText = this.title;
+            return label;
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, g, session, redirect, flash, jsonify
 from secrets import FLASK_SECRET_KEY
-from models import db, connect_db, User, Card, TimeTest
+from models import db, connect_db, User, Card, TimeTest, TradeRequest, RequestCard
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm
 from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
@@ -208,6 +208,31 @@ def request_trade(id):
     msg = f"Request for {card.to_string()} from user {g.user.username}"
     return render_template('request.html', msg=msg)
 
+@app.route('/cards/<int:id>/new-request', methods=['GET', 'POST'])
+def create_trade_request(id):
+    if g.user:
+        if request.method == 'POST':
+            data = request.json['request']
+            new_request = TradeRequest(to_id=data['to_id'], from_id=data['from_id'])
+            db.session.add(new_request)
+            db.session.commit()
+            for id in data['offeredCards']:
+                request_card = RequestCard(request_id=new_request.id, card_id=id)
+                db.session.add(request_card)
+                db.session.commit()
+            requested_card = RequestCard(request_id=new_request.id, card_id=data['requestedCardId'], requested=True)
+            db.session.add(requested_card)
+            db.session.commit()
+        else:
+            requested_card = Card.query.get_or_404(id)
+            g_user_cards = g.user.cards
+            card_json = []
+            for card in g_user_cards:
+                card_json.append(card.serialize())
+            return render_template('new-request.html', cards=card_json, requested_card=requested_card)
+    return redirect('/')
+
+
 @app.route('/cards/<int:id>/delete', methods=['POST'])
 def delete_card(id):
     card = Card.query.get_or_404(id)
@@ -345,3 +370,11 @@ def local_time():
     UTC_datetime_timestamp = float(UTC_datetime.strftime("%s"))
     local_datetime_converted = datetime.datetime.fromtimestamp(UTC_datetime_timestamp)
     return f"{local_datetime_converted}"
+
+@app.route('/request_test/<int:id>')
+def test_request(id):
+    card = Card.query.get(id)
+    request = TradeRequest(from_id=g.user.id, to_id=card.owner_id)
+    db.session.add(request)
+    db.session.commit()
+

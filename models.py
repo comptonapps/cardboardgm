@@ -10,6 +10,32 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
 
+class TradeRequest(db.Model):
+
+    __tablename__ = "trade_requests"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    from_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    to_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    accepted = db.Column(db.Boolean, default=None)
+    valid_items = db.Column(db.Boolean, default=True)
+    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+    #cards = db.relationship('Card', secondary='request_cards', backref="trade_requests", cascade='all, delete-orphan')
+    to_user = db.relationship('User', foreign_keys=[to_id], backref="trades_received")
+    from_user = db.relationship('User', foreign_keys=[from_id], backref="trades_sent")
+
+class RequestCard(db.Model):
+
+    __tablename__ = "request_cards"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    request_id = db.Column(db.Integer, db.ForeignKey("trade_requests.id", ondelete="CASCADE"), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), nullable=False)
+    requested = db.Column(db.Boolean, default=False)
+
+
+
 class User(db.Model):
 
     __tablename__ = "users"
@@ -23,8 +49,7 @@ class User(db.Model):
     img_url = db.Column(db.Text)
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
-    requests = db.relationship("TradeRequest", backref="users", cascade='all, delete-orphan')
-
+    
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -84,6 +109,9 @@ class Card(db.Model):
     number = db.Column(db.Text)
     desc = db.Column(db.Text)
     img_url = db.Column(db.Text, default=None)
+    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+    requests = db.relationship("TradeRequest", secondary="request_cards", backref="cards")
 
     def serialize(self):
         return {'player'      : self.player,
@@ -94,7 +122,8 @@ class Card(db.Model):
                 'img_url'     : self.img_url,
                 'title'       : self.to_string(),
                 'thumb_url'   : self.thumb_url(),
-                'full_url'    : self.full_img_url()}
+                'full_url'    : self.full_img_url(),
+                'id'          : self.id }
 
     def to_string(self):
         return f"{self.year} {self.set_name} #{self.number} {self.player} {self.desc}"
@@ -109,24 +138,9 @@ class Card(db.Model):
         else:
             return None
 
-class TradeRequest(db.Model):
 
-    __tablename = "trade_requests"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    from_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    to_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False))
-    accepted = db.Column(db.Boolean, default=None)
 
-    cards = db.relationship('Card', secondary='request_cards', backref="trade_requests")
-
-class RequestCards(db.Model):
-
-    __tablename = "request_cards"
-
-    id = db.Column(db.Integer, primary_key=True autoincrement=True)
-    request_id = db.Column(db.Integer, db.ForeignKey("trade_requests.id", ondelete="CASCADE"), nullable=False)
-    card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), nullable=False)
 
 
 class TimeTest(db.Model):
