@@ -109,6 +109,7 @@ class Card(db.Model):
     number = db.Column(db.Text)
     desc = db.Column(db.Text)
     img_url = db.Column(db.Text, default=None)
+    title = db.Column(db.Text, default=None)
     time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     requests = db.relationship("TradeRequest", secondary="request_cards", backref="cards", cascade='all, delete')
@@ -138,6 +139,11 @@ class Card(db.Model):
             return f"{AWS_URL}{thumbnail_url}"
         else:
             return None
+
+    @classmethod
+    def create(cls, owner_id, player, year, set_name, number, desc):
+        return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}" )
+
 
 
 

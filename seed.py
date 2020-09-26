@@ -11,14 +11,14 @@ mgon = User.register(username="mgonzales", password="qqqqqqqq", first_name="Marc
 db.session.add_all([jcom, klew, mgon])
 db.session.commit()
 
-acuna = Card(owner_id=jcom.id, player="Ronald Acuna Jr", year="2018", set_name="Topps Series 2", number="698", desc="PSA 10")
-tatis = Card(owner_id=jcom.id, player="Fernando Tatis Jr", year="2019", set_name="Topps Seris 2", number="410", desc="PSA 10")
+acuna = Card.create(owner_id=jcom.id, player="Ronald Acuna Jr", year="2018", set_name="Topps Series 2", number="698", desc="PSA 10")
+tatis = Card.create(owner_id=jcom.id, player="Fernando Tatis Jr", year="2019", set_name="Topps Seris 2", number="410", desc="PSA 10")
 
-griffeyUD = Card(owner_id=klew.id, player="Ken Griffey Jr", year="1989", set_name="Upper Deck", number="1", desc="PSA 9")
-griffeyDon = Card(owner_id=klew.id, player="Ken Griffey Jr", year="1989", set_name="Donruss", number="33", desc="PSA 10")
+griffeyUD = Card.create(owner_id=klew.id, player="Ken Griffey Jr", year="1989", set_name="Upper Deck", number="1", desc="PSA 9")
+griffeyDon = Card.create(owner_id=klew.id, player="Ken Griffey Jr", year="1989", set_name="Donruss", number="33", desc="PSA 10")
 
-mantle56 = Card(owner_id=mgon.id, player="Mickey Mantle", year="1956", set_name="Topps", number="135", desc="PSA 5.5")
-mantle52 = Card(owner_id=mgon.id, player="Mickey Mantle", year="1952", set_name="Topps", number="311", desc="Authentic")
+mantle56 = Card.create(owner_id=mgon.id, player="Mickey Mantle", year="1956", set_name="Topps", number="135", desc="PSA 5.5")
+mantle52 = Card.create(owner_id=mgon.id, player="Mickey Mantle", year="1952", set_name="Topps", number="311", desc="Authentic")
 
 db.session.add_all([acuna, tatis, griffeyDon, griffeyUD, mantle52, mantle56])
 db.session.commit()

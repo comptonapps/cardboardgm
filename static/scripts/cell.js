@@ -31,6 +31,9 @@ class Cell {
         let imgUrl;
         if (this.isCardCell) {
             imgUrl = this.json.thumb_url;
+            if (!imgUrl) {
+                imgUrl = "/static/images/default.jpg"
+            }
         } else {
             imgUrl = this.json.img_url;
             image.classList.add('avatar')

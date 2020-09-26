@@ -21,30 +21,32 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
 
-
-db.create_all()
-
 @app.before_request
 def add_user_to_g():
+    """Add authenticated user to flask g"""
     if USER_ID in session:
         g.user = User.query.get(session[USER_ID])
     else:
         g.user = None
         print(request.endpoint)
 
+########## APP ENTRY ROUTES ##########
 
 @app.route('/index')
 def show_index():
+    """Show user app entry page"""
     return render_template('index.html')
 
 @app.route('/')
 def root_route():
+    """Direct authentcated user home or unauthenticated user to show_index route"""
     if g.user:
         return redirect(f'/users/{g.user.id}')
     return redirect('/index')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
+    """Show user the login form.  Handle valid form submission by authenticating user."""
     form = LoginForm()
     if form.validate_on_submit():
         user = User.authenticate(username=form.username.data, password=form.password.data)
@@ -130,7 +132,7 @@ def edit_user_form(id):
 def add_new_card(id):
     form = CardForm()
     if form.validate_on_submit():
-        new_card = Card(owner_id=id,
+        new_card = Card.create(owner_id=id,
                         player=form.player.data,
                         year=form.year.data,
                         set_name=form.set_name.data,
@@ -251,45 +253,24 @@ def delete_card(id):
 
 @app.route('/api/cards')
 def get_cards():
-    # tokens = request.args.get('fart', None)
-    # print(f'\n\n{tokens}\n\n')
-    # cards = Card.query.filter(Card.player.ilike(f'%{tokens}%')).all()
-    # print(cards)
-    
-    # for card in cards:
-    #     print(card.player)
-    # # print(request.args['fart'])
-    # raise
-    # cards = []
-    # if name: 
-    #     cards = Card.query.filter(Card.player.ilike(f'%{name}%'))
-    # else:
-    #     cards = Card.query.all()
-    # json = []
-    # for card in cards:
-    #     json.append(card.serialize())
-    # return jsonify(results=json)
+    if not g.user:
+        return redirect('/')
     results = []
+    query = Card.query
     tokens = request.args.get('tokens', None)
     if tokens:
         json_tokens = json.loads(tokens)
-        query = Card.query
         for token in json_tokens:
-            query = query.filter(Card.player.ilike(f'%{token}%'))
-        cards = query.all()
-        for card in cards:
-            results.append(card.serialize())
-        return jsonify(results=results)
-    else:
-        cards = Card.query.all()
-        for card in cards:
-            results.append(card.serialize())
-        return jsonify(results=results)
-
-
+            query = query.filter(Card.title.ilike(f'%{token}%'))
+    cards = query.all()
+    for card in cards:
+        results.append(card.serialize())
+    return jsonify(results=results)
 
 @app.route('/api/users')
 def get_users():
+    if not g.user:
+        return redirect('/')
     username = request.args.get('name', None)
     user_results = []
     if username:

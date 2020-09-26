@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="title-search-banner">
-<h1>Search Cards</h1>
-<form action="/api/cards" class='search-form'>
-    <div class="search-group">
-        <input type="text" id="search-input">
-        <button id="search-btn" class="search-btn">Search</button>
-    </div>
-</form>
+<div class="two-item-banner">
+    <h1>CARDS</h1>
+    <form action="">
+        <div class="form-group">
+            <input type="text" class="search-field">
+            <button class="search-btn">Search</button>
+        </div>
+    </form>
 </div>
-<div class="collection-container" id="cc">
+<!-- <div class="collection-container" id="cc"> -->
 {% if cards|length > 0 %}
 <h2 id="result-title">Showing All Cards</h2>
 <div class="cells-container">
@@ -31,17 +31,19 @@
 </a>
 {% endfor %}
 </div>
-</div>
+<!-- </div> -->
 {% endif %}
 <script>
     const cellsContainer = document.querySelector('.cells-container')
     const searchBtn = document.querySelector('.search-btn');
+    const resultTitle = document.querySelector('#result-title')
     searchBtn.addEventListener('click', async function(e) {
         e.preventDefault();
-        let query = document.querySelector("#search-input").value;
+        let query = document.querySelector(".search-field").value;
         let tokens;
         if (query) {
-            tokens = document.querySelector("#search-input").value.split(" ");
+            tokens = query.split(" ");
+            resultTitle.innerText = `Showing results for ${query}:`
         }
         
         let res = await axios.get('/api/cards', { params : { 'tokens' : JSON.stringify(tokens) } })
