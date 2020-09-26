@@ -16,7 +16,7 @@ body, html {
     min-height: 400px;
 }
 
-button {
+button, input[type=submit] {
     border: none;
     font-family: 'Roboto Condensed', sans-serif;
     border-radius: 8px;
@@ -84,12 +84,12 @@ nav a, nav a:visited {
 }
 
 .flash-msg {
-    background-color: rgb(92, 92, 219);
     border: 2px solid rgb(46, 46, 126);
     color: white;
     text-align: center;
     border-radius: 6px;
     padding: 8px;
+    margin-bottom: 6px;
     
 }
 
@@ -200,11 +200,11 @@ input[type='file'] {
     background-color: rgb(14, 150, 230);
 }
 
-.green {
+.green, .success {
     background-color: rgb(52, 201, 59);
 }
 
-.red {
+.red, .error {
     background-color: rgb(235, 64, 64);
 }
 

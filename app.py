@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, g, session, redirect, flash, jsonify
 from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card, TimeTest, TradeRequest, RequestCard
-from forms import LoginForm, RegisterForm, CardForm, EditUserForm
+from forms import LoginForm, RegisterForm, CardForm, EditUserForm, AcceptDeclineForm
 from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True 
 
 connect_db(app)
+
 
 db.create_all()
 
@@ -51,7 +52,7 @@ def login_user():
             add_user_to_session(user)
             return redirect(f'/users/{user.id}')
         else:
-            flash("Incorrect Username or Password")
+            flash("Incorrect Username or Password", 'error')
     return render_template("login.html", form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -70,15 +71,15 @@ def register_user():
             try:
                 db.session.commit()
                 add_user_to_session(new_user)
-                flash("User created")
+                flash("User created", 'success')
                 return redirect(f'/users/{new_user.id}')
             except IntegrityError:
                 db.session.rollback()
-                flash("Username already taken")
+                flash("Username already taken", 'error')
                 return redirect('/register')
             except:
                 db.session.rollback()
-                flash("Error creating user")
+                flash("Error creating user", 'error')
                 return redirect('/register')
     return render_template('register.html', form=form)
 
@@ -118,10 +119,10 @@ def edit_user_form(id):
                     db.session.commit()
                     return redirect(f'/users/{user.id}')
                 except:
-                    flash("Image Error")
+                    flash("Image Error", 'error')
                     return redirect(f'/users/{user.id}')
         except:
-                    flash("Changes could not be saved")
+                    flash("Changes could not be saved", 'error')
                     return redirect(f'/users/{user.id}')
     return render_template('edit-user.html', user=user, form=form)
 
@@ -138,7 +139,7 @@ def add_new_card(id):
         db.session.add(new_card)
         try:
             db.session.commit()
-            flash("Card successfully added!")
+            flash("Card successfully added!", 'success')
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
@@ -153,11 +154,11 @@ def add_new_card(id):
                     new_card.img_url = file_key
                     db.session.commit()
                 except:
-                    flash("Image file is unsupported type")
+                    flash("Image file is unsupported type", 'error')
             return redirect(f'/users/{id}')
         except:
             db.session.rollback()
-            flash("Error adding Card")
+            flash("Error adding Card", 'error')
     return render_template('add-card.html', form=form)
 
 @app.route('/users/<int:id>/delete', methods=['POST'])
@@ -166,11 +167,11 @@ def delete_user(id):
     db.session.delete(user)
     try:
         db.session.commit()
-        flash("User Deleted!")
+        flash("User Deleted!", 'success')
         return redirect('/logout')
     except:
         db.session.rollback()
-        flash("Error deleting user")
+        flash("Error deleting user", 'error')
         return redirect("/")
 
 @app.route('/cards')
@@ -195,11 +196,11 @@ def edit_card(id):
         card.desc = form.desc.data
         try:
             db.session.commit()
-            flash("Changes saved")
+            flash("Changes saved", 'success')
             return redirect(f'/users/{card.user.id}')
         except:
             db.session.rollback()
-            flash("error saving changes")
+            flash("error saving changes", 'error')
     return render_template('edit-card.html', form=form, card=card)
 
 @app.route('/cards/<int:id>/request')
@@ -301,14 +302,39 @@ def get_users():
             user_results.append(user.serialize())
     return jsonify(user_results)
 
-@app.route('/users/<int:id>/requests')
+@app.route('/users/<int:id>/requests', methods=['GET', 'POST'])
 def show_requests(id):
-    return render_template('requests.html');
+    form = AcceptDeclineForm()
+    requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.time_created.desc()).all()
+    if form.validate_on_submit():
+        request = TradeRequest.query.get_or_404(int(form.request_id.data))
+        if form.delete.data:
+            db.session.delete(request)
+            req_ID = request.id
+            req_cards = RequestCard.query.filter_by(request_id=req_ID).delete()
+            db.session.commit()
+            return redirect('/')
+        elif form.decline.data:
+            request.accepted = False
+            db.session.commit()
+            return redirect('/')
+        else:
+            to_id = request.to_id
+            from_id = request.from_id
+            cards = request.cards
+            for card in cards:
+                if card.owner_id == to_id:
+                    card.owner_id = from_id
+                else:
+                    card.owner_id = to_id
+            request.accepted = True
+            db.session.commit()
+    return render_template('requests.html', requests=requests, form=form)
 
 @app.route('/logout')
 def logout_user():
     session.pop(USER_ID)
-    flash("Goodbye!")
+    flash("Goodbye!", 'success')
     return redirect('/')
 
 def add_user_to_session(user):
@@ -377,4 +403,16 @@ def test_request(id):
     request = TradeRequest(from_id=g.user.id, to_id=card.owner_id)
     db.session.add(request)
     db.session.commit()
+
+@app.route('/test-accept', methods=['GET', 'POST'])
+def test_accept():
+    form = AcceptDeclineForm(hidden="CHOP")
+    if form.validate_on_submit():
+        print(f'\n\nGOT HERE\n\n')
+        print(form.accept.data)
+        print(form.decline.data)
+        print(form.hidden.data)
+        import pdb
+        pdb.set_trace()
+    return render_template('test-accept.html', form=form)
 

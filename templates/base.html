@@ -28,8 +28,8 @@
         {% endif %}
     </nav>
     <div class="app-container">
-        {% for msg in get_flashed_messages() %}
-        <p class="flash-msg">{{msg}}</p>
+        {% for category, msg in get_flashed_messages(with_categories=True) %}
+        <p class="flash-msg {{category}}">{{msg}}</p>
         {% endfor %}
         
                 {% block content %}

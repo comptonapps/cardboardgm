@@ -19,19 +19,19 @@ class TradeRequest(db.Model):
     to_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     accepted = db.Column(db.Boolean, default=None)
     valid_items = db.Column(db.Boolean, default=True)
-    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     #cards = db.relationship('Card', secondary='request_cards', backref="trade_requests", cascade='all, delete-orphan')
     to_user = db.relationship('User', foreign_keys=[to_id], backref="trades_received")
     from_user = db.relationship('User', foreign_keys=[from_id], backref="trades_sent")
+    items = db.relationship('RequestCard', backref="request", cascade='all, delete')
 
 class RequestCard(db.Model):
 
     __tablename__ = "request_cards"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    request_id = db.Column(db.Integer, db.ForeignKey("trade_requests.id", ondelete="CASCADE"), nullable=False)
-    card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey("trade_requests.id", ondelete="CASCADE"), primary_key=True, nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), primary_key=True, nullable=False)
     requested = db.Column(db.Boolean, default=False)
 
 
@@ -49,7 +49,7 @@ class User(db.Model):
     img_url = db.Column(db.Text)
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
-    
+
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -109,9 +109,10 @@ class Card(db.Model):
     number = db.Column(db.Text)
     desc = db.Column(db.Text)
     img_url = db.Column(db.Text, default=None)
-    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-    requests = db.relationship("TradeRequest", secondary="request_cards", backref="cards")
+    requests = db.relationship("TradeRequest", secondary="request_cards", backref="cards", cascade='all, delete')
+    grouping = db.relationship("RequestCard", backref="info", cascade='all, delete')
 
     def serialize(self):
         return {'player'      : self.player,
