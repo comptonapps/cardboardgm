@@ -2,7 +2,7 @@
 {% block content %}
 <h1 id="request-title">CURRENT TRADE REQUESTS</h1>
 <div class="collection-container">
-    {% if requests %}
+        {% if requests %}
         {% for request in requests %}
             <div class="trade-cell">
                 <div class="status-bar">
@@ -13,9 +13,25 @@
                     <h3>{{request.from_user.username}}{{request.id}} {% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
                     {% for item in request.items %}
                         {% if item.requested and request.accepted %}
-                        <p>{{item.info.title}} {{item.info.id}}</p>
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
                         {% elif not request.accepted and item.requested == False %}
-                        <p>{{item.info.title}} {{item.info.id}}</p>
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -23,13 +39,29 @@
                     <h3>{{request.to_user.username}} {% if request.accepted %} received: {% elif request.accepted == False %} would receive: {% else %} will return: {% endif %}</h3>
                     {% for item in request.items %}
                         {% if not item.requested and request.accepted %}
-                        <p>{{item.info.title}} {{item.info.id}}</p>
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
                         {% elif not request.accepted and item.requested %}
-                        <p>{{item.info.title}} {{item.info.id}}</p>
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                      {{item.info.thumb_url()}}
+                                      {% else %}
+                                      /static/images/default.jpg
+                                      {% endif %}" alt="">
+                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>
-                {% if request.accepted == None and request.from_user.id != g.user.id and request.valid_items %}
+                {% if request.accepted == None and request.to_user.id == g.user.id and request.valid_items %}
                 <div class="button-box">
                     <form method='POST' class='button-box-submit'>
                         {{ form.csrf_token }}

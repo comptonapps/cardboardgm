@@ -84,10 +84,15 @@ def register_user():
                 return redirect('/register')
     return render_template('register.html', form=form)
 
-
 @app.route('/users')
-def show_users():
-    users = User.query.all()
+def redirect_to_users_all():
+    return redirect('/users/all/1')
+
+@app.route('/users/all/<int:page>')
+def show_users(page):
+    
+    users = User.query.paginate(per_page=20, page=page)
+
     return render_template('users.html', users=users)
 
 @app.route('/users/<int:id>')

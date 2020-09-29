@@ -553,6 +553,11 @@ input[type=submit] {
  
 }
 
+.pages {
+    text-align: center;
+    padding: 12px;
+}
+
 @media(min-width:769px) {
     .bullseye {
         justify-content: flex-start;
