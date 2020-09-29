@@ -15,11 +15,10 @@ def get_recent_prices(card_info):
                                                   'SERVICE-VERSION'                : '1.0.0',
                                                   'sortOrder'                      : 'EndTimeSoonest'})
     api_results = res.json()
-    print(f'\n\n\n\n{api_results}\n\n\n')
 
     result_list = []
 
-    if res.status_code == 200 and api_results['findCompletedItemsResponse'][0]['searchResult'][0]['@count'] != 0:
+    if res.status_code == 200 and api_results['findCompletedItemsResponse'][0]['searchResult'][0]['@count'] != '0':
 
         for item in api_results['findCompletedItemsResponse'][0]['searchResult'][0]['item']:
             info = { 'title'    : item['title'][0],
@@ -29,6 +28,8 @@ def get_recent_prices(card_info):
                      }
             result_list.append(info)
 
-        return jsonify(result_list)
-    else:
-        return False
+    return jsonify(result_list)
+    # else:
+    #     return jsonify(result_list)
+    # print(f'\n\nFUCK\n\n')
+    # return jsonify({'results' : []})

@@ -16,7 +16,7 @@
     </form>
     {% endif %}
 </div>
-<div class="collection-container">
+
     <h2>Collection</h2>
     {% if g.user.id == user.id %}
     <form action="/users/{{user.id}}/add_card">
@@ -46,5 +46,5 @@
         </div>
         {% endif %}
     </div>
-</div>
+
 {% endblock %}

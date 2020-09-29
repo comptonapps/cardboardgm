@@ -99,7 +99,7 @@
     <form method='POST'>
         {{ form.csrf_token }} 
 
-        {{ form.request_id(value=request.id) }}
+        {{ form.request_id(value=dir(form.request_id)) }}
 
         <div class="form-group">
             {{form.delete(class_="form-btn red delete", id="deleteTradeBtn")}}

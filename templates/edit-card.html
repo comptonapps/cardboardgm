@@ -11,7 +11,7 @@
                   /static/images/default.jpg
                   {% endif %}" alt="">
         </div>
-        <form method='POST'>
+        <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}
         
             {% for field in form

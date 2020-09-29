@@ -19,7 +19,7 @@ class TradeRequest(db.Model):
     to_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     accepted = db.Column(db.Boolean, default=None)
     valid_items = db.Column(db.Boolean, default=True)
-    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     #cards = db.relationship('Card', secondary='request_cards', backref="trade_requests", cascade='all, delete-orphan')
     to_user = db.relationship('User', foreign_keys=[to_id], backref="trades_received")
@@ -110,7 +110,7 @@ class Card(db.Model):
     desc = db.Column(db.Text)
     img_url = db.Column(db.Text, default=None)
     title = db.Column(db.Text, default=None)
-    time_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     requests = db.relationship("TradeRequest", secondary="request_cards", backref="cards", cascade='all, delete')
     grouping = db.relationship("RequestCard", backref="info", cascade='all, delete')
@@ -145,15 +145,4 @@ class Card(db.Model):
         return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}" )
 
 
-
-
-
-
-
-class TimeTest(db.Model):
-
-    __tablename__ = "times"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    time = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 

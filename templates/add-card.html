@@ -2,29 +2,26 @@
 
 {% block content %}
 <div class="bullseye">
-
-<div class="form-container">
-    <h1>ADD NEW CARD</h1>
-    <form method='POST' enctype="multipart/form-data">
+    <div class="form-container">
+        <h1>ADD NEW CARD</h1>
+        <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}
-        
+            
             {% for field in form
                 if field.widget.input_type != 'hidden' %}
-        
+            
             <div class="form-group">
                 {{field.label(class_="form-label")}}
                 {{field(class_="form-field")}}
-            </div>
-            
+            </div>     
             {% for error in field.errors %}
             <div class="field-error">
                 <p class="error-text">{{error}}</p>
             </div>
             {% endfor %}
-        
             {% endfor %}
             <button class="btn submit form-btn green">ADD CARD</button>
         </form>
-</div>
+    </div>
 </div>
 {% endblock%}

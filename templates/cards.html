@@ -10,7 +10,6 @@
         </div>
     </form>
 </div>
-<!-- <div class="collection-container" id="cc"> -->
 {% if cards|length > 0 %}
 <h2 id="result-title">Showing All Cards</h2>
 <div class="cells-container">
@@ -31,37 +30,6 @@
 </a>
 {% endfor %}
 </div>
-<!-- </div> -->
 {% endif %}
-<script>
-    const cellsContainer = document.querySelector('.cells-container')
-    const searchBtn = document.querySelector('.search-btn');
-    const resultTitle = document.querySelector('#result-title')
-    searchBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        let query = document.querySelector(".search-field").value;
-        let tokens;
-        if (query) {
-            tokens = query.split(" ");
-            resultTitle.innerText = `Showing results for ${query}:`
-        }
-        
-        let res = await axios.get('/api/cards', { params : { 'tokens' : JSON.stringify(tokens) } })
-
-        if (res.data.results.length > 0) {
-            cellsContainer.innerHTML = "";
-            for (card of res.data.results) {
-                console.log(card)
-                let cell = new Cell(card, true);
-                cellsContainer.append(cell.cell);
-            }
-        } 
-        else {
-            cellsContainer.innerHTML = ""
-            cellsContainer.innerText = "No results found"
-            
-        }
-    });
-</script>
-
+<script src="/static/scripts/cards.js"></script>
 {% endblock %}

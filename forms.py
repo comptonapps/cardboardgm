@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, FileField, SubmitField, HiddenField
+from wtforms import StringField, PasswordField, SelectField, FileField, SubmitField, HiddenField, IntegerField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, Optional
 from wtforms_validators import AlphaNumeric
 from constants import EARLIEST_YEAR, CURRENT_YEAR
@@ -30,9 +30,8 @@ class CardForm(PlayerForm):
     desc = StringField("Description", validators=[Length(max=50, message="Limit description to 50 characters")])
     image = FileField("Card Image", validators=[Optional()])
 
-class AcceptDeclineForm(FlaskForm):
-
+class TradeRequestForm(FlaskForm):
     accept = SubmitField('Accept')
     decline = SubmitField('Decline')
-    delete = SubmitField('DELETE TRADE')
-    request_id = HiddenField()
+    delete = SubmitField('Remove Request')
+    request_id = HiddenField(IntegerField())
