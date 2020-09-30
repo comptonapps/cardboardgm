@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Test Scroll</title>
+    <style>
+        .app-container {
+            width: 70%;
+            background-color: black;
+            margin: 0 auto;
+        }
+
+        .scroll-cell {
+            height: 150px;
+            width: 85%;
+            background-color: white;
+            margin: 8px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="scroll-cell">
+
+        </div>
+        <div class="scroll-cell">
+            
+        </div>
+        <div class="scroll-cell">
+            
+        </div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        <div class="scroll-cell"></div>
+        
+    </div>
+    <script>
+        window.addEventListener('scroll', () => {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            console.log(scrollTop, scrollHeight, clientHeight);
+        })
+    </script>
+</body>
+</html>

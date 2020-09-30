@@ -341,6 +341,10 @@ def show_requests(id):
         #         db.session.commit()
     return render_template('requests2.html', requests=requests, form=form)
 
+@app.route('/pricing')
+def check_ebay_sales():
+    return render_template('/pricing.html')
+
 @app.route('/logout')
 def logout_user():
     session.pop(USER_ID)

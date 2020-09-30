@@ -18,17 +18,38 @@
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <nav>
+    <!-- <nav class="navbar">
         <div class="brand"><a href="/">CARDBOARDGM</a></div>
         {% if g.user %}
-        <ul class="nav-links">
+        <div class="nav-links">
+            <ul>
             <li class="nav-link"><a href="/cards">Cards</a></li>
             <li class="nav-link"><a href="/users">Users</a></li>
             <li class="nav-link"><a href="/users/{{g.user.id}}/requests">Requests</a></li>
             <li class="nav-link"><a href="/logout">Logout</a></li>
         </ul>
-        {% endif %}
-    </nav>
+        </div>
+        {% endif %} -->
+    <!-- </nav> -->
+    <nav class="navbar">
+            <div class="brand"><a href="/">CARDBOARDGM</a></div>
+            <a href="#" class="toggle-button">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </a>
+            {% if g.user %}
+            <div class="navbar-links">
+                <ul>
+                    <li><a href="/cards">CARDS</a></li>
+                    <li><a href="/users">MANAGERS</a></li>
+                    <li><a href="/pricing">PRICING</a></li>
+                    <li><a href="/users/{{g.user.id}}/requests">REQUESTS</a></li>
+                    <li><a href="/logout">LOGOUT</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </nav>
     <div class="app-container">
         {% for category, msg in get_flashed_messages(with_categories=True) %}
         <p class="flash-msg {{category}}">{{msg}}</p>
@@ -37,5 +58,13 @@
         {% block content %}
         {% endblock %}
     </div>
+    <script>
+            const toggleButton = document.querySelector(".toggle-button");
+            const navLinks = document.querySelector(".navbar-links");
+    
+            toggleButton.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            })
+        </script>
 </body>
 </html>
