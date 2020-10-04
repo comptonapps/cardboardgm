@@ -1,70 +1,100 @@
 class Cell {
-    constructor(json, isCardCell) {
-        this.cell = document.createElement('div');
-        this.isCardCell = isCardCell;
-        this.imageView = document.createElement('div');
-        this.titleArea = document.createElement('p');
-        this.json = json
-        this.init()
+    constructor(json) {
+        this.cell;
+        this.imageContainer;
+        this.json = json;
+        this.imageElement;
+        this.titleContainer;
+        this.init();
     }
 
     init() {
-        this.addClassToCell();
-        //this.addImageViewToCell();
-        this.addClassToImageView();
-        this.addImageToImageView();
-        this.addTitleAreaToCell();
-        this.addTitleToTitleArea();
-    }
-
-    addClassToCell() {
-        this.cell.classList.add('collection-cell');
-    }
-
-    addClassToImageView() {
-        this.imageView.classList.add('cell-image-container')
-
-    }
-
-    addImageToImageView() {
-        const image = document.createElement('img');
-        let imgUrl;
-        if (this.isCardCell) {
-            imgUrl = this.json.thumb_url;
-            if (!imgUrl) {
-                imgUrl = "/static/images/default.jpg"
-            }
-        } else {
-            imgUrl = this.json.img_url;
-            image.classList.add('avatar')
-        }
-        if (!imgUrl) {
-            imgUrl = '/static/images/no-avatar.png'
-        }
-        image.setAttribute('src', imgUrl)
-        
-        this.imageView.append(image);
-        this.cell.append(this.imageView)
-    }
-
-    addTitleAreaToCell() {
-        if (this.isCardCell) {
-            this.titleArea.classList.add('cell-title')
-        } else {
-            this.titleArea.classList.add('cell-title-user')
-        }
-        
-        this.cell.append(this.titleArea);
-    }
-
-    addTitleToTitleArea() {
-        if (this.isCardCell) {
-            this.titleArea.innerText = this.json.title;
-        } else {
-            this.titleArea.innerText = this.json.username;
-        }
+        this.cell = this.getCell();
+        this.imageElement = this.getImageElement();
+        this.imageContainer = this.getImageContainer();
+        this.cell.append(this.imageContainer);
         
     }
 
+    getCell() {
+        const cell = this.getElement('div');
+        cell.classList.add('collection-cell');
+        return cell;
+    }
 
+    getImageContainer() {
+        const container = this.getElement('div');
+        container.classList.add('cell-image-container');
+        container.append(this.imageElement);
+        return container;
+    }
+
+    getImageElement() {
+        const img = this.getElement('img');
+        return img;
+    }
+
+    getElement(type) {
+        return document.createElement(type);
+    }
+
+    setImageSource(src) {
+        this.imageElement.setAttribute('src', src);
+    }
+}
+
+class CardCell extends Cell {
+    constructor(json) {
+        super(json);
+        this.ccinit();
+
+    }
+
+    ccinit() {
+        this.titleContainer = this.getTitleContainer();
+        this.cell.append(this.titleContainer);
+        const imgUrl = this.json.thumb_url;
+        if (imgUrl) {
+            this.setImageSource(imgUrl);
+        } else {
+            this.setImageSource('/static/images/default.jpg');
+        }
+    }
+
+    getTitleContainer() {
+        const container = this.getElement('p');
+        container.classList.add('cell-title');
+        container.innerText = this.json.title;
+        return container;
+    }
+
+
+
+}
+
+class UserCell extends Cell {
+    constructor(json) {
+        super(json);
+        this.ucinit();
+    }
+
+    ucinit() {
+        this.titleContainer = this.getTitleContainer()
+        this.cell.append(this.titleContainer);
+        const imgUrl = this.json.img_url;
+        if (imgUrl) {
+            this.setImageSource(imgUrl);
+            
+        } else {
+            this.setImageSource('/static/images/no-avatar.png')
+        }
+        this.imageElement.classList.add('avatar');
+    }
+
+    getTitleContainer() {
+        const container = this.getElement('p');
+        container.classList.add('cell-title-user');
+        container.innerText = this.json.username;
+        return container;
+    }
 }

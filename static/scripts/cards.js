@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
             cellsContainer.innerHTML = "";
             for (card of res.data.results) {
                 console.log(card)
-                let cell = new Cell(card, true);
+                let cell = new CardCell(card);
                 cellsContainer.append(cell.cell);
             }
         } 

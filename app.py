@@ -91,7 +91,8 @@ def redirect_to_users_all():
 @app.route('/users/all/<int:page>')
 def show_users(page):
     
-    users = User.query.paginate(per_page=20, page=page)
+    # users = User.query.paginate(per_page=20, page=page)
+    users = User.query.limit(4).all()
 
     return render_template('users.html', users=users)
 
@@ -411,6 +412,29 @@ def test_trade_cell():
     requests = RequestCard.query.filter_by(card_id=6).all()
     print(f'\n\n{requests}\n\n')
     return render_template('test-trade-cell.html')
+
+@app.route('/BAR')
+def inf_scr():
+    return render_template('/testScroll.html')
+
+@app.route('/api/test-inf-scr')
+def infinite_test():
+    limit = request.args.get('limit', None)
+    offset = request.args.get('offset', 0)
+    name = request.args.get('derp')
+    query = User.query
+    if name:
+        query = query.filter(User.username.ilike(f'%{name}%'))
+    query = query.offset(offset)
+    if limit:
+        query = query.limit(limit)
+    obj_users = query.all()
+    for user in obj_users:
+        print(user)
+    users = []
+    for user in obj_users:
+        users.append(user.serialize())
+    return jsonify(users=users)
 
 def handle_request_response(request, form):
     if form.delete.data:

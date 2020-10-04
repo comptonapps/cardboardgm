@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Test Scroll</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <style>
+
+        * {
+            padding: 0;
+            margin: 0;
+        }
         .app-container {
             width: 70%;
             background-color: black;
@@ -18,36 +24,61 @@
             background-color: white;
             margin: 8px auto;
         }
+
+        p {
+            background-color: blue;
+            line-height: 200px;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="scroll-cell">
-
-        </div>
-        <div class="scroll-cell">
-            
-        </div>
-        <div class="scroll-cell">
-            
-        </div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
-        <div class="scroll-cell"></div>
         
     </div>
     <script>
-        window.addEventListener('scroll', () => {
+        const ac = document.querySelector('.app-container');
+        let limit = 4;
+        let offset = 0;
+        let listening = true;
+        if (listening) {
+            load(); 
+        }
+        
+        window.addEventListener('scroll', async function() {
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            console.log(scrollTop, scrollHeight, clientHeight);
+            if (scrollTop + clientHeight >= scrollHeight) {
+                if (listening) {
+                    listening = false;
+                    let res = await axios.get('/api/test-inf-scr', {params : { limit , offset }});
+                    for (mgr of res.data) {
+                        let newP = document.createElement('p');
+                        newP.innerText = mgr.username;
+                        ac.append(newP)
+                    }
+                    console.log(res.data);
+                    if (res.data.length == limit) {
+                        listening = true;
+                        offset = offset + limit;
+                    }
+                }
+                
+            }
         })
+        async function load() {
+                    listening = false;
+                    let res = await axios.get('/api/test-inf-scr', {params : { limit , offset }});
+                    for (mgr of res.data) {
+                        let newP = document.createElement('p');
+                        newP.innerText = mgr.username;
+                        ac.append(newP)
+                    }
+                    console.log(res.data);
+                    if (res.data.length == limit) {
+                        listening = true;
+                        offset = offset + limit;
+                    }
+                }
     </script>
 </body>
 </html>

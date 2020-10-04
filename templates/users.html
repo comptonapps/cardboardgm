@@ -11,7 +11,7 @@
     </form>
 </div>
 <div class="cells-container">
-    {% for user in users.items %}
+    {% for user in users %}
     <a href="/users/{{user.id}}">
         <div class="collection-cell">
             <div class="cell-image-container">
@@ -22,13 +22,94 @@
     </a>
     {% endfor %}
 </div>
-<p class="pages">
-{% for page in users.iter_pages(left_edge=3, right_edge=2, left_current=3, right_current=3) %}
-{% if page %}
-    <a href="/users/all/{{page}}">{{ page }}</a>
-{% else %}
-...
-{% endif %}
-{% endfor %}
-</p>
+
+<script>
+    const appContainer = document.querySelector('.app-container');
+    const cellContainer = document.querySelector('.cells-container')
+    const searchField = document.querySelector('.search-field');
+    const searchBtn = document.querySelector('.search-btn');
+    let offset = document.getElementsByClassName('collection-cell').length;
+    let limit = offset;
+    let derp;
+    listening = true;
+
+    function getClientHeight() {
+        return document.documentElement.clientHeight;
+    }
+
+    function appContainerHeight() {
+        return appContainer.scrollHeight;
+    }
+
+    searchField.addEventListener('input', async () => {
+        if (searchField.value == "") {
+            offset = 0;
+            derp = null;
+            cellContainer.innerHTML = "";
+            listening = true;
+            await getMoreUsers();
+        }
+    });
+
+    searchBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        derp = searchField.value;
+        console.log(searchField.value)
+        listening = true;
+        offset = 0;
+        cellContainer.innerHTML = "";
+        await getMoreUsers();
+    });
+
+    window.addEventListener('load', async function() {
+        while (getClientHeight() >= appContainerHeight() && listening){
+            await getMoreUsers();
+        }
+    });
+
+    async function getMoreUsers() {
+        console.log('called')
+        let ach = appContainerHeight()
+        let res = await axios.get('/api/test-inf-scr', { params : {limit, offset, derp}});
+        console.log(res)
+        for (user of res.data.users) {
+            const userLink = document.createElement('a');
+            userLink.setAttribute('href', `/users/${user.id}`);
+            let cell = new UserCell(user).cell;   
+            cellContainer.append(userLink);
+            userLink.append(cell);
+        }
+        offset += limit;
+        
+        if (res.data.users.length < limit) {
+            listening = false;
+        }
+
+        checkFilled(ach);
+    }
+
+
+
+    async function checkFilled(height) {
+        if (height === appContainerHeight() && listening) {
+            await getMoreUsers();
+        }
+    }
+
+    async function sizeChange() {
+        if (appContainer.offsetHeight + appContainer.scrollTop == appContainer.scrollHeight) {
+            appContainer.removeEventListener('scroll', sizeChange)
+            window.removeEventListener('resize', sizeChange)
+            await getMoreUsers();
+            appContainer.addEventListener('scroll', sizeChange)
+            window.addEventListener('resize', sizeChange)
+
+        }
+    }
+
+    appContainer.addEventListener('scroll', sizeChange)
+    window.addEventListener('resize', sizeChange)
+</script>
+
 {% endblock %}
+
