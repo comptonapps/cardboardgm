@@ -47,6 +47,7 @@ class User(db.Model):
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
     img_url = db.Column(db.Text)
+    last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
 
@@ -54,7 +55,7 @@ class User(db.Model):
         return f"{self.first_name} {self.last_name}"
 
     @classmethod
-    def register(cls, username, password, email, first_name, last_name):
+    def register(cls, username, password, email, first_name, last_name, img_url=None):
 
         hashed = bcrypt.generate_password_hash(password)
         pwd_utf8 = hashed.decode("utf8")
@@ -63,7 +64,8 @@ class User(db.Model):
                    password=pwd_utf8,
                    email=email,
                    first_name=first_name,
-                   last_name=last_name)
+                   last_name=last_name,
+                   img_url=img_url)
 
     @classmethod
     def authenticate(cls, username, password):
@@ -76,7 +78,16 @@ class User(db.Model):
             return False
 
     def imgurl(self):
-        return f"{AWS_URL}{self.img_url}"
+        if self.img_url:
+            return f"{AWS_URL}{self.img_url}"
+        else:
+            return None
+
+    def thumburl(self):
+        if self.img_url:
+            return f"{AWS_URL}profile-images/{self.id}/{self.id}_thumb.JPEG"
+        else:
+            return None
 
     def serialize(self):
         return {'username'   : self.username,
@@ -84,6 +95,8 @@ class User(db.Model):
                 'last_name'  : self.last_name,
                 'email'      : self.email,
                 'id'         : self.id,
+                'img_url'    : self.imgurl(),
+                'thumb_url'  : self.thumburl()
                 }
 
 
@@ -141,8 +154,8 @@ class Card(db.Model):
             return None
 
     @classmethod
-    def create(cls, owner_id, player, year, set_name, number, desc):
-        return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}" )
+    def create(cls, owner_id, player, year, set_name, number, desc, img_url=None):
+        return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}", img_url=img_url )
 
 
 

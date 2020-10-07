@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .space {
+        margin: 8px;
+    }
+
+    .trade-request-container {
+        padding: 12px;
+        height: 100%;
+        margin: 0 auto;
+    }
+
+    .your-collection, .selected-cards {
+        border: 2px solid black;
+        margin-top: 8px;
+        height: 30%;
+        min-height: 250px;
+        overflow: scroll;
+    }
+
+    .request-cell {
+        width: 100%;
+        display: flex;
+        padding: 8px 4px;
+        border-bottom: 2px solid black;
+    }
+
+    span {
+        color: red;
+        cursor: pointer;
+    }
+
+    span:active {
+        color: white;
+    }
+
+    @media(min-width: 769px) {
+        .your-collection, .selected-cards {
+            max-width: 70%;
+            margin: auto;
+            margin-top: 8px;
+        }
+    }
+</style>
+    <div class="trade-request-container">
+        <h2>Request Trade</h2>
+        <div class="form-group">
+            <input type="text" placeholder="Search Your Collection">
+            <button>Search</button>
+        </div>
+        <div class="your-collection">
+            {% for card in cards %}
+            <div class="request-cell">
+                <input type="checkbox" data-id={{card.id}} class="check">
+                <p>{{card.title}}</p>
+                <span><i class="far fa-images" data-imgurl="{{card.full_url}}"></i></span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="selected-cards"></div>
+        <div class="form-group">
+            <form method="POST">
+                {{form.csrf_token}}
+                {{form.req_data}}
+                <button class="form-btn space" id="send-request-btn">Send Request</button>
+            </form>
+            <button class="form-btn space">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let dataLoaded = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            let checks = document.getElementsByClassName('check');
+            for (check of checks) {
+                if (check.checked) {
+                    console.log(check)
+                    let card = getCardFromJson(parseInt(check.dataset.id));
+                    console.log(card)
+                    selectedCards.append(getNewRequestCell(card));
+                }
+            }
+        })
+        const cards = {{cards | tojson }};
+        const yourCollection = document.querySelector(".your-collection");
+        const selectedCards = document.querySelector(".selected-cards");
+        const sendBtn = document.querySelector("#send-request-btn");
+        yourCollection.addEventListener('click', (e) => {
+            const target = e.target
+            if (target.classList.contains('check')) {
+                if (target.checked) {
+                    const card = getCardFromJson(parseInt(target.dataset.id));
+                    selectedCards.append(getNewRequestCell(card));
+                }
+            }
+            if (e.target.tagName == 'I') {
+                showImage(e.target.dataset.imgurl)
+            }
+        });
+
+        selectedCards.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target.tagName == 'INPUT') {
+                target.parentElement.remove();
+            }
+        });
+
+        function showImage(url) {
+            const body = document.querySelector('body');
+            const modalWindow = new ModalWindow().modalWindow
+            const img = document.createElement('img');
+            img.setAttribute('src', url);
+            modalWindow.append(img);
+            body.append(modalWindow);
+        }
+
+        function getCardFromJson(cid) {
+            const { title, id, full_url } = cards.find(el => el.id === cid)
+            console.log(title);
+            return { title, id, full_url };
+        }
+
+        function getNewRequestCell(data) {
+            const cell = document.createElement('div');
+            cell.classList.add('request-cell');
+            cell.classList.add('selected')
+            cell.dataset.id = data.id;
+            cell.innerHTML = `<input type="checkbox" checked class="sel-check">
+              <p>${data.title}</p>
+              <span><i class="far fa-images" data-imgurl="${data.full_url}"></i></span>`;
+            return cell;
+        }
+
+        sendBtn.addEventListener('click', function(e){
+            if (!dataLoaded) {
+                e.preventDefault();
+            }
+            
+            dataLoaded = true;
+            let cells = document.getElementsByClassName('selected');
+            console.log(cells);
+            selectedCardsIds = [];
+            for (cell of cells) {
+                selectedCardsIds.push(parseInt(cell.dataset.id));
+            }
+            reqData = document.querySelector('#req_data');
+            reqData.value = JSON.stringify({c : selectedCardsIds});
+            console.log(document.querySelector('#req_data').value);
+            if (dataLoaded) {
+                console.log("sending")
+                sendBtn.click();
+            }
+        })
+    </script>
+{% endblock %}

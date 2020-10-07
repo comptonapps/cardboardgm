@@ -5,7 +5,7 @@
     <img src="{% if not user.img_url%}
     /static/images/no-avatar.png
     {% else %}
-    {{user.img_url}}
+    {{user.imgurl()}}
     {% endif %}" alt="profile image" class="profile-img-full">
 
     <h1>{{user.username}}</h1>

@@ -81,7 +81,7 @@ class UserCell extends Cell {
     ucinit() {
         this.titleContainer = this.getTitleContainer()
         this.cell.append(this.titleContainer);
-        const imgUrl = this.json.img_url;
+        const imgUrl = this.json.thumb_url;
         if (imgUrl) {
             this.setImageSource(imgUrl);
             

@@ -10,7 +10,7 @@
                     <h3>Status: {% if request.accepted %} Accepted {% elif request.accepted == False %} Declined {% elif request.valid_items %} Active {% else %} Inactive - Item/s not available{% endif %}</h3>
                 </div>
                 <div class="items-box">
-                    <h3>{{request.from_user.username}}{{request.id}} {% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
+                    <h3>{{request.from_user.username}} {% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
                     {% for item in request.items %}
                         {% if item.requested and request.accepted %}
                         <div class="items-box-cell">
@@ -29,7 +29,7 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <p>{{item.info.title}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
                         {% endif %}
@@ -45,7 +45,7 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <p>{{item.info.title}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
                         {% elif not request.accepted and item.requested %}
@@ -55,7 +55,7 @@
                                       {% else %}
                                       /static/images/default.jpg
                                       {% endif %}" alt="">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <p>{{item.info.title}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
                         {% endif %}
@@ -84,4 +84,35 @@
         {% endfor %}
     {% endif %}
 </div>
+<!-- <script>
+    const collection = document.querySelector('.collection-container')
+    const body = document.querySelector('body');
+    body.addEventListener('click', async function(e) {
+        
+        let target = e.target
+        if (e.target.classList.contains('ebay')){
+            e.preventDefault();
+            const modal = new ModalWindow().modalWindow;
+        body.append(modal);
+        const resultsContainer = document.createElement('div')
+        resultsContainer.classList.add('results-container');
+        modal.append(resultsContainer);
+        let res = await axios.get('/api/ebay', { params : {'item' : target.dataset.search }})
+        console.log(res)
+        if (res.data.length > 0) {
+            for (item of res.data) {
+            let cell = new EbayCell(item).cell;
+            resultsContainer.append(cell);
+            }
+        } else {
+            const noResults = document.createElement('h1');
+            noResults.innerText = "NO RESULTS FOUND";
+            noResults.classList.add('no-results');
+            resultsContainer.append(noResults);
+        }
+        };
+        
+        
+    })
+</script> -->
 {% endblock %}

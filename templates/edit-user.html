@@ -6,7 +6,7 @@
 <p>Current User Image</p>
     <img src=
     {% if user.img_url %}
-    "{{user.img_url}}"
+    "{{user.thumburl()}}"
     {% else %}
     "/static/images/no-avatar.png"
     {% endif %}
@@ -22,6 +22,9 @@
                 {{field.label(class_="form-label")}}
                 {{field(class_="form-field")}}
             </div>
+            {% if field == form.image %}
+                <p style="background-color: orange;">*Use a square image for best results</p>
+            {% endif %}
             
             {% for error in field.errors %}
             <div class="field-error">

@@ -35,3 +35,6 @@ class TradeRequestForm(FlaskForm):
     decline = SubmitField('Decline')
     delete = SubmitField('Remove Request')
     request_id = HiddenField(IntegerField())
+
+class HiddenRequestForm(FlaskForm):
+    req_data = HiddenField()

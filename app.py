@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, g, session, redirect, flash, jsonify
 from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card, TradeRequest, RequestCard
-from forms import LoginForm, RegisterForm, CardForm, EditUserForm, TradeRequestForm
+from forms import LoginForm, RegisterForm, CardForm, EditUserForm, TradeRequestForm, HiddenRequestForm
 from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
@@ -92,7 +92,7 @@ def redirect_to_users_all():
 def show_users(page):
     
     # users = User.query.paginate(per_page=20, page=page)
-    users = User.query.limit(4).all()
+    users = User.query.order_by(User.last_updated.desc()).limit(4).all()
 
     return render_template('users.html', users=users)
 
@@ -116,12 +116,19 @@ def edit_user_form(id):
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
-                    flash("We got the image")
+                    width, height = img.size
+                    c_img = img.crop((0,0,min(width, height), min(width, height)))
+                    c_img.format = img.format
                     size = (300, 300)
-                    img.thumbnail(size)
+                    c_img.thumbnail(size)
                     key_stub = f"profile-images/{id}/{id}_full"
-                    file_key = handle_image_upload(img, key_stub)
+                    file_key = handle_image_upload(c_img, key_stub)
+                    size = (150, 150)
+                    c_img.thumbnail(size)
+                    key_stub = f"profile-images/{id}/{id}_thumb"
+                    handle_image_upload(c_img, key_stub)
                     user.img_url = file_key
+                    user.last_updated = datetime.datetime.utcnow()
                     db.session.commit()
                     return redirect(f'/users/{user.id}')
                 except:
@@ -235,26 +242,29 @@ def request_trade(id):
 
 @app.route('/cards/<int:id>/new-request', methods=['GET', 'POST'])
 def create_trade_request(id):
+    form = HiddenRequestForm()
+    card = Card.query.get_or_404(id)
     if g.user:
-        if request.method == 'POST':
-            data = request.json['request']
-            new_request = TradeRequest(to_id=data['to_id'], from_id=data['from_id'])
+        if form.validate_on_submit():
+            data = json.loads(form.req_data.data)
+            new_request = TradeRequest(to_id=card.owner_id, from_id=g.user.id)
             db.session.add(new_request)
             db.session.commit()
-            for id in data['offeredCards']:
-                request_card = RequestCard(request_id=new_request.id, card_id=id)
+            for id in data.get('c'):
+                request_card = RequestCard(request_id=new_request.id, card_id=int(id))
                 db.session.add(request_card)
                 db.session.commit()
-            requested_card = RequestCard(request_id=new_request.id, card_id=data['requestedCardId'], requested=True)
+            requested_card = RequestCard(requested=True, request_id=new_request.id, card_id=card.id)
             db.session.add(requested_card)
             db.session.commit()
+                
         else:
             requested_card = Card.query.get_or_404(id)
             g_user_cards = g.user.cards
             card_json = []
             for card in g_user_cards:
                 card_json.append(card.serialize())
-            return render_template('new-request.html', cards=card_json, requested_card=requested_card)
+            return render_template('tr.html', cards=card_json, requested_card=requested_card, form=form)
     return redirect('/')
 
 
@@ -311,35 +321,8 @@ def show_requests(id):
     requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.last_updated.desc()).all()
     if form.validate_on_submit():
         request = TradeRequest.query.get_or_404(int(form.request_id.data))
-        handle_request_response(request, form)
-        # if form.delete.data:
-        #     db.session.delete(request)
-        #     req_ID = request.id
-        #     req_cards = RequestCard.query.filter_by(request_id=req_ID).delete()
-        #     db.session.commit()
-        #     return redirect('/')
-        # elif form.decline.data:
-        #     request.accepted = False
-        #     request.last_updated = datetime.datetime.utcnow()
-        #     db.session.commit()
-        #     return redirect('/')
-        # else:
-        #     if request.valid_items and request.accepted == None:
-        #         to_id = request.to_id
-        #         from_id = request.from_id
-        #         cards = request.cards
-        #         for card in cards:
-        #             card_requests = card.requests
-        #             if card.owner_id == to_id:
-        #                 card.owner_id = from_id
-        #             else:
-        #                 card.owner_id = to_id
-        #             for request in card_requests:
-        #                 request.valid_items = False
-        #         request.accepted = True
-        #         request.last_updated = datetime.datetime.utcnow()
-        #         #### set other trade_requests with cards to valid_items = False
-        #         db.session.commit()
+        return handle_request_response(request, form)
+        
     return render_template('requests2.html', requests=requests, form=form)
 
 @app.route('/pricing')
@@ -361,68 +344,12 @@ def ebay():
     query_string = request.args.get('item')
     return get_recent_prices(query_string)
 
-@app.route('/ac')
-def ac():
-    return render_template('testAlert.html')
-
-@app.route('/checks')
-def checks():
-    return render_template('checksTest.html')
-
-@app.route('/json')
-def test_json():
-    card = Card.query.first()
-    card_json = card.serialize()
-    return render_template('test-json.html', json=card_json)
-
-
-@app.route('/localtime')
-def local_time():
-    time = TimeTest.query.get(1)
-    localtime = float(time.time.strftime("%s"))
-    #converted = datetime.datetime.fromtimestamp(converted)
-    #return f"{datetime.datetime.fromtimestamp(localtime)}"
-    UTC_datetime = datetime.datetime.utcnow()
-    UTC_datetime_timestamp = float(UTC_datetime.strftime("%s"))
-    UTC_datetime_timestamp = float(UTC_datetime.strftime("%s"))
-    local_datetime_converted = datetime.datetime.fromtimestamp(UTC_datetime_timestamp)
-    return f"{local_datetime_converted}"
-
-@app.route('/request_test/<int:id>')
-def test_request(id):
-    card = Card.query.get(id)
-    request = TradeRequest(from_id=g.user.id, to_id=card.owner_id)
-    db.session.add(request)
-    db.session.commit()
-
-@app.route('/test-accept', methods=['GET', 'POST'])
-def test_accept():
-    form = AcceptDeclineForm(hidden="CHOP")
-    if form.validate_on_submit():
-        print(f'\n\nGOT HERE\n\n')
-        print(form.accept.data)
-        print(form.decline.data)
-        print(form.hidden.data)
-        import pdb
-        pdb.set_trace()
-    return render_template('test-accept.html', form=form)
-
-@app.route('/trade-cell')
-def test_trade_cell():
-    requests = RequestCard.query.filter_by(card_id=6).all()
-    print(f'\n\n{requests}\n\n')
-    return render_template('test-trade-cell.html')
-
-@app.route('/BAR')
-def inf_scr():
-    return render_template('/testScroll.html')
-
 @app.route('/api/test-inf-scr')
 def infinite_test():
     limit = request.args.get('limit', None)
     offset = request.args.get('offset', 0)
     name = request.args.get('derp')
-    query = User.query
+    query = User.query.order_by(User.last_updated.desc())
     if name:
         query = query.filter(User.username.ilike(f'%{name}%'))
     query = query.offset(offset)
@@ -437,12 +364,15 @@ def infinite_test():
     return jsonify(users=users)
 
 def handle_request_response(request, form):
-    if form.delete.data:
-        db.session.delete(request)
+    if form.delete.data:        
         req_ID = request.id
         req_cards = RequestCard.query.filter_by(request_id=req_ID).delete()
+        # print(f'\n\n{req_cards}\n\n')
+        # for card in req_cards:
+        #     card.delete()
+        db.session.delete(request)
         db.session.commit()
-        return redirect('/')
+        return redirect(f'/users/{g.user.id}/requests')
     elif form.decline.data:
         request.accepted = False
         request.last_updated = datetime.datetime.utcnow()
@@ -465,5 +395,4 @@ def handle_request_response(request, form):
             request.last_updated = datetime.datetime.utcnow()
             #### set other trade_requests with cards to valid_items = False
             db.session.commit()
-
-
+            return redirect('/')

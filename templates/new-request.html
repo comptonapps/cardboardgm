@@ -1,11 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .user-cards, .selected-cards {
+        background-color: white;
+        border: 2px solid black;
+        padding: 4px;
+    }
+
+    .trade-cell {
+        width: 100%;
+        background-color: aqua;
+    }
+</style>
 <div class="bullseye">
     <div class="trade-container">
         <h3>TRADE REQUEST for {{requested_card.to_string()}}</h3>
         <input type="text" placeholder="Search by Player Name">
-        <button>SEARCH</button>
+        <button data-id="{{g.user.id}}">SEARCH</button>
         <h4>SELECT CARDS TO OFFER</h4>
         <div class="user-cards">
             {% if cards %}
