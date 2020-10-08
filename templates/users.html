@@ -22,91 +22,12 @@
     </a>
     {% endfor %}
 </div>
-
+{% endblock %}
+{% block scripts %}
 <script>
-    const appContainer = document.querySelector('.app-container');
-    const cellContainer = document.querySelector('.cells-container')
-    const searchField = document.querySelector('.search-field');
-    const searchBtn = document.querySelector('.search-btn');
-    let offset = 0;
-    let limit = document.getElementsByClassName('collection-cell').length;
-    let derp;
-    listening = true;
-
-    function getClientHeight() {
-        return document.documentElement.clientHeight;
-    }
-
-    function appContainerHeight() {
-        return appContainer.scrollHeight;
-    }
-
-    searchField.addEventListener('input', async () => {
-        if (searchField.value == "") {
-            offset = limit * -1;
-            derp = null;
-            cellContainer.innerHTML = "";
-            listening = true;
-            await getMoreUsers();
-        }
-    });
-
-    searchBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        derp = searchField.value;
-        listening = true;
-        offset = limit * -1;
-        cellContainer.innerHTML = "";
-        await getMoreUsers();
-    });
-
-    window.addEventListener('load', async function() {
-        while (getClientHeight() >= appContainerHeight() && listening){
-            await getMoreUsers();
-        }
-    });
-
-    async function getMoreUsers() {
-        offset += limit;
-        let ach = appContainerHeight()
-        let res = await axios.get('/api/test-inf-scr', { params : {limit, offset, derp}});
-        for (user of res.data.users) {
-            const userLink = document.createElement('a');
-            userLink.setAttribute('href', `/users/${user.id}`);
-            let cell = new UserCell(user).cell;   
-            cellContainer.append(userLink);
-            userLink.append(cell);
-        }
-        
-        if (res.data.users.length < limit) {
-            listening = false;
-        }
-
-        checkFilled(ach);
-    }
-
-
-
-    async function checkFilled(height) {
-        if (height === appContainerHeight() && listening) {
-            await getMoreUsers();
-        }
-    }
-
-    async function sizeChange() {
-        if (appContainer.offsetHeight + appContainer.scrollTop == appContainer.scrollHeight) {
-            appContainer.removeEventListener('scroll', sizeChange)
-            window.removeEventListener('resize', sizeChange)
-            await getMoreUsers();
-            appContainer.addEventListener('scroll', sizeChange)
-            window.addEventListener('resize', sizeChange)
-
-        }
-    }
-
-    appContainer.addEventListener('scroll', sizeChange)
-    window.addEventListener('resize', sizeChange)
+    let c = new CellCollectionListener(UserCell, '/api/test-inf-scr', '/users/');
 </script>
 
-{% endblock %}
 
+
+{% endblock %}

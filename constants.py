@@ -8,3 +8,4 @@ EBAY_RESULT_COUNT = 50
 EBAY_URL_ENDPOINT = f"https://svcs.ebay.com/services/search/FindingService/v1"
 EARLIEST_YEAR = 1888
 CURRENT_YEAR = 2020
+API_LIMIT = 4

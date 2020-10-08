@@ -1,151 +1,118 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<style>
-    .trade-cell {
-        margin-bottom: 12px;
-        border: 4px solid black;
-        border-radius: 6px;
-    }
-
-    .trade-status {
-        background-color: black;
-        color: white;
-        padding: 4px;
-    }
-
-    .owner-receive {
-        padding: 4px;
-    }
-
-    .trade-cards {
-        padding: 4px;
-        background-color: white;
-    }
-
-    .trade-cell-form {
-        display: flex;
-        padding: 4px;
-        align-items: center;
-        justify-content: space-around;
-        width: 100%;
-        height: 50px;
-    }
-
-    .trade-cell-form form {
-        width: 50%;
-        margin: 4px;
-        color: white;
-    }
-
-    /* .trade-cell-form input[type=submit] {
-        color: white;
-    }
-
-    .white-text {
-        /* color: white; */
-    } */
-</style>
-<h1>TRADE REQUESTS</h1>
-{% for request in requests %}
-<div class="trade-cell">
-<div class="trade-cell-status">
-<p class="trade-status">Status: 
-    {% if request.accepted %}
-    Accepted
-    {% elif request.accepted == false %}
-    Rejected
-    {% else %}
-    Active
-    {% endif %}</p>
-</div>
-<h3 class="owner-receive">Sender {{request.from_user.username}} will receive:</h3>
-<div class="trade-cards">
-    {% for item in request.items %}
-    {% if item.requested %}
-    <p><a href="/cards/{{item.info.id}}">{{item.info.to_string()}}</a></p>
-    {% endif %}
-    {% endfor %}
-</div>
-<h3 class="owner-receive">{{request.to_user.username}} will receive:</h3>
-<div class="trade-cards">
-    {% for item in request.items %}
-    {% if not item.requested %}
-    <p><a href="/cards/{{item.info.id}}">{{item.info.to_string()}}</a></p>
-    {% endif %}
-    {% endfor %}
-</div>
-{% if request.to_user.id == g.user.id %}
-<div class="trade-cell-form">
-        <form method='POST'>
-                {{ form.csrf_token }}
-
-                {{ form.request_id(value=request.id) }}
-
-                
-                <div class="form-group">
-                    {{form.accept(class_="form-btn blue accept white-text")}}
-                    {{form.decline(class_="form-btn red decline white-text")}}
+<h1 id="request-title">CURRENT TRADE REQUESTS</h1>
+<div class="collection-container">
+        {% if requests %}
+        {% for request in requests %}
+            <div class="trade-cell">
+                <div class="status-bar">
+                    <div class="disc {% if request.accepted %} green {% elif request.accepted == False %} red {% else %} grey {% endif %}"></div>
+                    <h3>Status: {% if request.accepted %} Accepted {% elif request.accepted == False %} Declined {% elif request.valid_items %} Active {% else %} Inactive - Item/s not available{% endif %}</h3>
                 </div>
-         
-            
-
-            </form>
-
+                <div class="items-box">
+                    <h3>{{request.from_user.username}} {% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
+                    {% for item in request.items %}
+                        {% if item.requested and request.accepted %}
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}} {{item.info.id}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
+                        {% elif not request.accepted and item.requested == False %}
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="items-box">
+                    <h3>{{request.to_user.username}} {% if request.accepted %} received: {% elif request.accepted == False %} would receive: {% else %} will return: {% endif %}</h3>
+                    {% for item in request.items %}
+                        {% if not item.requested and request.accepted %}
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                        {{item.info.thumb_url()}}
+                                        {% else %}
+                                        /static/images/default.jpg
+                                        {% endif %}" alt="">
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
+                        {% elif not request.accepted and item.requested %}
+                        <div class="items-box-cell">
+                            <img src="{%if item.info.img_url%}
+                                      {{item.info.thumb_url()}}
+                                      {% else %}
+                                      /static/images/default.jpg
+                                      {% endif %}" alt="">
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if request.accepted == None and request.to_user.id == g.user.id and request.valid_items %}
+                <div class="button-box">
+                    <form method='POST' class='button-box-submit'>
+                        {{ form.csrf_token }}
+                        {{ form.request_id(value=request.id)}}
+                        {{ form.accept(class_="success") }}
+                        {{ form.decline(class_="blue") }}
+                    </form>
+                </div>
+                {% endif %}
+                {% if not request.valid_items or request.accepted != None or request.from_user.id == g.user.id %}
+                <div class="button-box">
+                    <form method='POST' class="button-box-submit">
+                        {{ form.csrf_token }}
+                        {{ form.request_id(value=request.id)}}
+                        {{ form.delete(class_="red") }}
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
-{% endif %}
-{% if request.from_id == g.user.id %}
-<div class="trade-cell-form">
-    <form method='POST'>
-        {{ form.csrf_token }} 
-
-        {{ form.request_id(value=dir(form.request_id)) }}
-
-        <div class="form-group">
-            {{form.delete(class_="form-btn red delete", id="deleteTradeBtn")}}
-        </div>
-    </form>
-</div>
-
-{% endif %}
-</div>
-
-
-{% endfor %}
 <script>
-        const body = document.querySelector('body');
-        let tradeCells = document.getElementsByClassName("trade-cell-form");
-        let notConfirmed = true;
-        for (cell of tradeCells) {
-            cell.addEventListener('click', function(e){
-                let target = e.target;
-                console.log(target)
-                if (target.classList.contains('form-btn')) {
-                    if (target.classList.contains('delete')) {
-                        if (notConfirmed){
-                            e.preventDefault();
-                            let ac = new AlertController("DELETE TRADE", "Are you sure you want to delete this trade?", "DELETE TRADE", function() {
-                            notConfirmed = false;
-                            target.click();
-                        })
-                        body.append(ac.ac);
-                        }
-                        
-                    } else if (target.classList.contains('decline')) {
-    
-                        if (notConfirmed) {
-                            e.preventDefault();
-                            let ac = new AlertController("DECLINE TRADE", "Are you sure you want to decline this trade?", "DECLINE TRADE", function() {
-                                notConfirmed = false;
-                                target.click();
-                            })
-                            body.append(ac.ac)
-                        }
-                    }
-                    
-                }
-                
-            });
+    const collection = document.querySelector('.collection-container')
+    const body = document.querySelector('body');
+    body.addEventListener('click', async function(e) {
+        
+        let target = e.target
+        if (e.target.classList.contains('ebay')){
+            e.preventDefault();
+            const modal = new ModalWindow().modalWindow;
+        body.append(modal);
+        const resultsContainer = document.createElement('div')
+        resultsContainer.classList.add('results-container');
+        modal.append(resultsContainer);
+        let res = await axios.get('/api/ebay', { params : {'item' : target.dataset.search }})
+        console.log(res)
+        if (res.data.length > 0) {
+            for (item of res.data) {
+            let cell = new EbayCell(item).cell;
+            resultsContainer.append(cell);
+            }
+        } else {
+            const noResults = document.createElement('h1');
+            noResults.innerText = "NO RESULTS FOUND";
+            noResults.classList.add('no-results');
+            resultsContainer.append(noResults);
         }
-    </script>
+        };
+        
+        
+    })
+</script>
 {% endblock %}

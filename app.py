@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
+from constants import API_LIMIT
 import io
 import json
 import datetime
@@ -84,6 +85,8 @@ def register_user():
                 return redirect('/register')
     return render_template('register.html', form=form)
 
+##########  USER ROUTES  ##########
+
 @app.route('/users')
 def redirect_to_users_all():
     return redirect('/users/all/1')
@@ -92,7 +95,7 @@ def redirect_to_users_all():
 def show_users(page):
     
     # users = User.query.paginate(per_page=20, page=page)
-    users = User.query.order_by(User.last_updated.desc()).limit(4).all()
+    users = User.query.order_by(User.last_updated.desc()).limit(API_LIMIT).all()
 
     return render_template('users.html', users=users)
 
@@ -187,9 +190,21 @@ def delete_user(id):
         flash("Error deleting user", 'error')
         return redirect("/")
 
+@app.route('/users/<int:id>/requests', methods=['GET', 'POST'])
+def show_requests(id):
+    form = TradeRequestForm()
+    requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.last_updated.desc()).all()
+    if form.validate_on_submit():
+        request = TradeRequest.query.get_or_404(int(form.request_id.data))
+        return handle_request_response(request, form)
+        
+    return render_template('requests.html', requests=requests, form=form)
+
+##########  CARD ROUTES  ##########
+
 @app.route('/cards')
 def show_cards():
-    cards = Card.query.order_by(Card.year.desc()).all()
+    cards = Card.query.order_by(Card.last_updated.desc()).limit(API_LIMIT).all()
     return render_template('cards.html', cards=cards)
 
 @app.route('/cards/<int:id>')
@@ -283,19 +298,41 @@ def delete_card(id):
         flash('Error deleting card')
         return redirect(request.url)
 
+@app.route('/pricing')
+def show_ebay_price_lookup():
+    return render_template('pricing.html')
+
+##########  API ROUTES  ##########
+
 @app.route('/api/cards')
 def get_cards():
     if not g.user:
         return redirect('/')
-    results = []
-    query = Card.query
-    tokens = request.args.get('tokens', None)
-    if tokens:
-        json_tokens = json.loads(tokens)
-        for token in json_tokens:
+    #results = []
+    # query = Card.query
+    # tokens = request.args.get('tokens', None)
+    # if tokens:
+    #     json_tokens = json.loads(tokens)
+    #     for token in json_tokens:
+    #         query = query.filter(Card.title.ilike(f'%{token}%'))
+    # cards = query.all()
+    # for card in cards:
+    #     results.append(card.serialize())
+    # return jsonify(results=results)
+    limit = request.args.get('limit', None)
+    offset = request.args.get('offset', 0)
+    name = request.args.get('searchStr')
+    query = Card.query.order_by(Card.last_updated.desc())
+    if name:
+        splitStr = name.split(" ")
+        for token in splitStr:
             query = query.filter(Card.title.ilike(f'%{token}%'))
-    cards = query.all()
-    for card in cards:
+    query = query.offset(offset)
+    if limit:
+        query = query.limit(limit)
+    obj_cards = query.all()
+    results = []
+    for card in obj_cards:
         results.append(card.serialize())
     return jsonify(results=results)
 
@@ -303,7 +340,8 @@ def get_cards():
 def get_users():
     if not g.user:
         return redirect('/')
-    username = request.args.get('name', None)
+    username = request.args.get('searchStr')
+    limit
     user_results = []
     if username:
         query_results = User.query.filter(User.username.ilike(f'%{username}%'))
@@ -315,30 +353,6 @@ def get_users():
             user_results.append(user.serialize())
     return jsonify(user_results)
 
-@app.route('/users/<int:id>/requests', methods=['GET', 'POST'])
-def show_requests(id):
-    form = TradeRequestForm()
-    requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.last_updated.desc()).all()
-    if form.validate_on_submit():
-        request = TradeRequest.query.get_or_404(int(form.request_id.data))
-        return handle_request_response(request, form)
-        
-    return render_template('requests2.html', requests=requests, form=form)
-
-@app.route('/pricing')
-def check_ebay_sales():
-    return render_template('/pricing.html')
-
-@app.route('/logout')
-def logout_user():
-    session.pop(USER_ID)
-    flash("Goodbye!", 'success')
-    return redirect('/')
-
-def add_user_to_session(user):
-    session[USER_ID] = user.id
-
-
 @app.route("/api/ebay")
 def ebay():
     query_string = request.args.get('item')
@@ -348,7 +362,7 @@ def ebay():
 def infinite_test():
     limit = request.args.get('limit', None)
     offset = request.args.get('offset', 0)
-    name = request.args.get('derp')
+    name = request.args.get('searchStr')
     query = User.query.order_by(User.last_updated.desc())
     if name:
         query = query.filter(User.username.ilike(f'%{name}%'))
@@ -361,22 +375,32 @@ def infinite_test():
     users = []
     for user in obj_users:
         users.append(user.serialize())
-    return jsonify(users=users)
+    return jsonify(results=users)
+
+##########  LOGOUT AND USER SESSION  ##########
+
+@app.route('/logout')
+def logout_user():
+    session.pop(USER_ID)
+    flash("Goodbye!", 'success')
+    return redirect('/')
+
+def add_user_to_session(user):
+    session[USER_ID] = user.id
 
 def handle_request_response(request, form):
     if form.delete.data:        
         req_ID = request.id
         req_cards = RequestCard.query.filter_by(request_id=req_ID).delete()
-        # print(f'\n\n{req_cards}\n\n')
-        # for card in req_cards:
-        #     card.delete()
         db.session.delete(request)
         db.session.commit()
+        flash('Request Deleted!', 'success')
         return redirect(f'/users/{g.user.id}/requests')
     elif form.decline.data:
         request.accepted = False
         request.last_updated = datetime.datetime.utcnow()
         db.session.commit()
+        flash('Request Declined!', 'success')
         return redirect('/')
     else:
         if request.valid_items and request.accepted == None:
@@ -395,4 +419,5 @@ def handle_request_response(request, form):
             request.last_updated = datetime.datetime.utcnow()
             #### set other trade_requests with cards to valid_items = False
             db.session.commit()
+            flash('Request Accepted!', 'success')
             return redirect('/')

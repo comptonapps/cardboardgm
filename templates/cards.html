@@ -31,5 +31,10 @@
 {% endfor %}
 </div>
 {% endif %}
-<script src="/static/scripts/cards.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let c = new CellCollectionListener(CardCell, '/api/cards', '/cards/');    
+</script>
 {% endblock %}
