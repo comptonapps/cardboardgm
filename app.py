@@ -322,7 +322,10 @@ def get_cards():
     limit = request.args.get('limit', None)
     offset = request.args.get('offset', 0)
     name = request.args.get('searchStr')
+    id = request.args.get('userId')
     query = Card.query.order_by(Card.last_updated.desc())
+    if id: 
+        query = query.filter(Card.owner_id == id)
     if name:
         splitStr = name.split(" ")
         for token in splitStr:

@@ -1,8 +1,9 @@
 class CellCollectionListener {
-    constructor(cell, endpoint, linkStub) {
+    constructor(cell, endpoint, linkStub, userId) {
         this.cell = cell;
         this.apiEndpoint = endpoint;
         this.linkStub = linkStub;
+        this.userId = userId;
         this.appContainer = document.querySelector('.app-container');
         this.cellContainer = document.querySelector('.cells-container');
         this.searchField = document.querySelector('.search-field');
@@ -28,6 +29,9 @@ class CellCollectionListener {
     getMoreJson = async () => {
         this.offset += this.limit;
         const params = { offset : this.offset, limit : this.limit, searchStr : this.searchStr }
+        if (this.userId) {
+            params.userId = this.userId;
+        }
         let ach = this.appContainerHeight();
         let res = await axios.get(this.apiEndpoint, {params : params});
         this.loadCells(res.data.results);
