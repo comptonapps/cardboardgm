@@ -367,6 +367,7 @@ input[type='file'] {
     flex-wrap: wrap;
     justify-content: center;
     margin-top: 20px;
+    min-height: 300px;
 }
 
 .cells-container a, .cells-container a:visited {

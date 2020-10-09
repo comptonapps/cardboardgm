@@ -17,7 +17,15 @@
     {% endif %}
 </div>
 
-    <h2>Collection</h2>
+<div class="two-item-banner">
+        <h1>CARDS</h1>
+        <form action="">
+            <div class="form-group">
+                <input type="text" class="search-field">
+                <button class="search-btn">Search</button>
+            </div>
+        </form>
+    </div>
     {% if g.user.id == user.id %}
     <form action="/users/{{user.id}}/add_card">
         <button class="banner-btn green">Add to Collection</button>
@@ -25,9 +33,9 @@
     <!-- <a href="/users/{{user.id}}/add_card" class="form-btn green">Add To Collection</a> -->
     {% endif %}
     <div>
-        {% if user.cards %}
+        {% if cards %}
         <div class="cells-container">
-        {% for card in user.cards %}
+        {% for card in cards %}
             <a href="/cards/{{card.id}}">
                 <div class="collection-cell">
                     <div class="cell-image-container">
@@ -47,4 +55,10 @@
         {% endif %}
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+        let c = new CellCollectionListener(CardCell, '/api/cards', '/cards/', {{user.id}});    
+    </script>
 {% endblock %}

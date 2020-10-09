@@ -102,7 +102,8 @@ def show_users(page):
 @app.route('/users/<int:id>')
 def show_user(id):
     user = User.query.get_or_404(id)
-    return render_template('user.html', user=user)
+    cards = Card.query.filter(Card.owner_id == id).order_by(Card.last_updated.desc()).limit(API_LIMIT).all()
+    return render_template('user.html', user=user, cards=cards)
 
 @app.route('/users/<int:id>/edit', methods=['GET', 'POST'])
 def edit_user_form(id):
