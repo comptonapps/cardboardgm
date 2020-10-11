@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from helpers import handle_image_upload, delete_record_from_s3
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
-from constants import API_LIMIT
+from constants import API_LIMIT, AVATAR_LARGE, AVATAR_THUMB, S3, AWS_BUCKET, IMG_FORMAT
 import io
 import json
 import datetime
@@ -93,10 +93,7 @@ def redirect_to_users_all():
 
 @app.route('/users/all/<int:page>')
 def show_users(page):
-    
-    # users = User.query.paginate(per_page=20, page=page)
     users = User.query.order_by(User.last_updated.desc()).limit(API_LIMIT).all()
-
     return render_template('users.html', users=users)
 
 @app.route('/users/<int:id>')
@@ -120,9 +117,10 @@ def edit_user_form(id):
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
+                    upload_img(img, user)
                     width, height = img.size
                     c_img = img.crop((0,0,min(width, height), min(width, height)))
-                    c_img.format = img.format
+                    c_img.format = 'JPEG'
                     size = (300, 300)
                     c_img.thumbnail(size)
                     key_stub = f"profile-images/{id}/{id}_full"
@@ -143,16 +141,39 @@ def edit_user_form(id):
                     return redirect(f'/users/{user.id}')
     return render_template('edit-user.html', user=user, form=form)
 
+def upload_img(img, obj):
+    images = [img.copy(), img.copy()]
+    for img in images:
+        img.format = IMG_FORMAT
+    images[0].thumbnail(AVATAR_LARGE)
+    images[1].thumbnail(AVATAR_THUMB)
+    large_key = get_large_key(obj, IMG_FORMAT)
+    thumb_key = get_thumb_key(obj, IMG_FORMAT)
+    upload_image_to_S3_bucket(images[0], large_key)
+    upload_image_to_S3_bucket(images[1], thumb_key)
+       
+def get_large_key(obj, format):
+    if type(obj) == User:
+        return f'users/{obj.id}/large.{format}'
+    elif type(obj) == Card:
+        return f'cards/{obj.number}/{id}/large.{format}'
+
+def get_thumb_key(obj, format):
+    if type(obj) == User:
+        return f'users/{obj.id}/thumb.{format}'
+    elif type(obj) == Card:
+        return f'cards/{obj.number}/{id}/thumb.{format}'
+
+def upload_image_to_S3_bucket(img, key):
+    stream = io.BytesIO()
+    img.save(stream, format=IMG_FORMAT)
+    S3.put_object(Body=stream.getvalue(), Bucket=AWS_BUCKET, Key=key, ACL='public-read')
+
 @app.route('/users/<int:id>/add_card', methods=['GET', 'POST'])
 def add_new_card(id):
     form = CardForm()
     if form.validate_on_submit():
-        new_card = Card.create(owner_id=id,
-                        player=form.player.data,
-                        year=form.year.data,
-                        set_name=form.set_name.data,
-                        number=form.number.data,
-                        desc=form.desc.data)
+        new_card = Card.create(form, owner_id=id)
         db.session.add(new_card)
         try:
             db.session.commit()
@@ -221,11 +242,7 @@ def edit_card(id):
     card = Card.query.get_or_404(id)
     form = CardForm(obj=card)
     if form.validate_on_submit():
-        card.player = form.player.data
-        card.set_name = form.set_name.data
-        card.number = form.number.data
-        card.year = form.year.data
-        card.desc = form.desc.data
+        load_card(card, form)
         if form.image.data:
             try:
                 img = Image.open(request.files[form.image.name])
@@ -249,6 +266,13 @@ def edit_card(id):
             db.session.rollback()
             flash("error saving changes", 'error')
     return render_template('edit-card.html', form=form, card=card)
+
+def load_card(card, form):
+    card.player = form.player.data
+    card.set_name = form.set_name.data
+    card.number = form.number.data
+    card.year = form.year.data
+    card.desc = form.desc.data
 
 @app.route('/cards/<int:id>/request')
 def request_trade(id):

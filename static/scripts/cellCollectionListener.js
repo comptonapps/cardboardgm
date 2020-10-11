@@ -16,6 +16,11 @@ class CellCollectionListener {
     }
 
     async init() {
+        console.log('HERE')
+        console.log(this.limit);
+        if (this.limit === 0) {
+            this.listening = false;
+        }
         window.addEventListener('load', await this.fillContainer);
         this.searchField.addEventListener('input', await this.refreshUsers);
         this.appContainer.addEventListener('scroll', await this.sizeChange)
@@ -23,22 +28,25 @@ class CellCollectionListener {
             e.preventDefault();
             await this.searchUsers();
         });
+        
         window.addEventListener('resize', await this.sizeChange)
     }
 
     getMoreJson = async () => {
-        this.offset += this.limit;
-        const params = { offset : this.offset, limit : this.limit, searchStr : this.searchStr }
-        if (this.userId) {
-            params.userId = this.userId;
+        if (this.listening) {
+            this.offset += this.limit;
+            const params = { offset : this.offset, limit : this.limit, searchStr : this.searchStr }
+            if (this.userId) {
+                params.userId = this.userId;
+            }
+            let ach = this.appContainerHeight();
+            let res = await axios.get(this.apiEndpoint, {params : params});
+            this.loadCells(res.data.results);
+            if (res.data.results.length < this.limit) {
+                this.listening = false;
+            }
+            this.checkFilled(ach);
         }
-        let ach = this.appContainerHeight();
-        let res = await axios.get(this.apiEndpoint, {params : params});
-        this.loadCells(res.data.results);
-        if (res.data.results.length < this.limit) {
-            this.listening = false;
-        }
-        this.checkFilled(ach);
         return;
     }
 

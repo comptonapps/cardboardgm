@@ -411,6 +411,7 @@ input[type='file'] {
 
 #edit-avatar {
     height: 100px;
+    min-height: 50px;
     border-radius: 50%;
     border: 2px solid black;
 }

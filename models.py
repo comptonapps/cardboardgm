@@ -154,8 +154,10 @@ class Card(db.Model):
             return None
 
     @classmethod
-    def create(cls, owner_id, player, year, set_name, number, desc, img_url=None):
-        return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}", img_url=img_url )
+    # def create(cls, owner_id, player, year, set_name, number, desc, img_url=None):
+    #     return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}", img_url=img_url)
+    def create(cls, form, owner_id, img_url=None):
+        return cls(owner_id=owner_id, player=form.player.data, year=form.year.data, set_name=form.set_name.data, number=form.number.data, desc=form.desc.data, title=f"{form.year.data} {form.set_name.data} #{form.number.data} {form.player.data} {form.desc.data}", img_url=img_url)
 
 
 

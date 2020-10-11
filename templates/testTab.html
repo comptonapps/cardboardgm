@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .tab-bar {
+            width: 50%;
+            margin: 0 auto;
+            border: 2px solid black;
+            border-radius: 4px;
+            display: flex;
+        }
+
+        .tab {
+            height: 25px;
+            background-color: grey;
+            border-right: 2px solid black;
+            flex: 1;
+        }
+
+        .tab:last-child {
+            border-right: none;
+        }
+
+        .active {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-bar">
+        <div class="tab active"></div>
+        <div class="tab"></div>
+        <div class="tab"></div>
+    </div>
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        console.log(tabs)
+        for (tab of tabs) {
+            tab.addEventListener('click', function(e) {
+                console.log('click');
+                e.target.classList.toggle('active');
+            })
+        }
+    </script>
+</body>
+</html>
