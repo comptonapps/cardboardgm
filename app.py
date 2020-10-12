@@ -3,10 +3,10 @@ from secrets import FLASK_SECRET_KEY
 from models import db, connect_db, User, Card, TradeRequest, RequestCard
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm, TradeRequestForm, HiddenRequestForm
 from sqlalchemy.exc import IntegrityError
-from helpers import handle_image_upload, delete_record_from_s3
+from helpers import delete_record_from_s3, upload_img
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
-from constants import API_LIMIT, AVATAR_LARGE, AVATAR_THUMB, S3, AWS_BUCKET, IMG_FORMAT
+from constants import API_LIMIT, AVATAR_LARGE, AVATAR_THUMB, CARD_LARGE, CARD_THUMB, S3, AWS_BUCKET, IMG_FORMAT
 import io
 import json
 import datetime
@@ -117,63 +117,26 @@ def edit_user_form(id):
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
-                    upload_img(img, user)
                     width, height = img.size
-                    c_img = img.crop((0,0,min(width, height), min(width, height)))
-                    c_img.format = 'JPEG'
-                    size = (300, 300)
-                    c_img.thumbnail(size)
-                    key_stub = f"profile-images/{id}/{id}_full"
-                    file_key = handle_image_upload(c_img, key_stub)
-                    size = (150, 150)
-                    c_img.thumbnail(size)
-                    key_stub = f"profile-images/{id}/{id}_thumb"
-                    handle_image_upload(c_img, key_stub)
-                    user.img_url = file_key
+                    img = img.crop((0, 0, min(width, height), min(width, height)))
+                    upload_img(img, user)
+                    user.has_img = True
                     user.last_updated = datetime.datetime.utcnow()
                     db.session.commit()
-                    return redirect(f'/users/{user.id}')
                 except:
+                    db.session.rollback()
                     flash("Image Error", 'error')
-                    return redirect(f'/users/{user.id}')
         except:
-                    flash("Changes could not be saved", 'error')
-                    return redirect(f'/users/{user.id}')
+            db.session.rollback()
+            flash("Changes could not be saved", 'error')
+        return redirect(f'/users/{user.id}')
     return render_template('edit-user.html', user=user, form=form)
-
-def upload_img(img, obj):
-    images = [img.copy(), img.copy()]
-    for img in images:
-        img.format = IMG_FORMAT
-    images[0].thumbnail(AVATAR_LARGE)
-    images[1].thumbnail(AVATAR_THUMB)
-    large_key = get_large_key(obj, IMG_FORMAT)
-    thumb_key = get_thumb_key(obj, IMG_FORMAT)
-    upload_image_to_S3_bucket(images[0], large_key)
-    upload_image_to_S3_bucket(images[1], thumb_key)
-       
-def get_large_key(obj, format):
-    if type(obj) == User:
-        return f'users/{obj.id}/large.{format}'
-    elif type(obj) == Card:
-        return f'cards/{obj.number}/{id}/large.{format}'
-
-def get_thumb_key(obj, format):
-    if type(obj) == User:
-        return f'users/{obj.id}/thumb.{format}'
-    elif type(obj) == Card:
-        return f'cards/{obj.number}/{id}/thumb.{format}'
-
-def upload_image_to_S3_bucket(img, key):
-    stream = io.BytesIO()
-    img.save(stream, format=IMG_FORMAT)
-    S3.put_object(Body=stream.getvalue(), Bucket=AWS_BUCKET, Key=key, ACL='public-read')
 
 @app.route('/users/<int:id>/add_card', methods=['GET', 'POST'])
 def add_new_card(id):
     form = CardForm()
     if form.validate_on_submit():
-        new_card = Card.create(form, owner_id=id)
+        new_card = Card.createFromForm(form, owner_id=id)
         db.session.add(new_card)
         try:
             db.session.commit()
@@ -181,15 +144,8 @@ def add_new_card(id):
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
-                    large = (600, 600)
-                    img.thumbnail(large)
-                    key_stub = f"card_images/{new_card.id}_full"
-                    file_key = handle_image_upload(img, key_stub)
-                    thumb_key_stub = f"card_images/{new_card.id}_thumb"
-                    size = (150, 150)
-                    img.thumbnail(size)
-                    thumb_file_key = handle_image_upload(img, thumb_key_stub)
-                    new_card.img_url = file_key
+                    upload_img(img, new_card)
+                    new_card.has_img = True
                     db.session.commit()
                 except:
                     flash("Image file is unsupported type", 'error')
@@ -204,6 +160,7 @@ def delete_user(id):
     user = User.query.get_or_404(id)
     db.session.delete(user)
     try:
+        delete_record_from_s3(user)
         db.session.commit()
         flash("User Deleted!", 'success')
         return redirect('/logout')
@@ -229,12 +186,14 @@ def show_cards():
     cards = Card.query.order_by(Card.last_updated.desc()).limit(API_LIMIT).all()
     return render_template('cards.html', cards=cards)
 
-@app.route('/cards/<int:id>')
+@app.route('/cards/<int:id>', methods=['GET', 'POST'])
 def show_card(id):
     card = Card.query.get_or_404(id)
     requests = [request for request in card.requests if request.accepted == None and request.valid_items]
     form = TradeRequestForm()
-    print(f'\n\n{requests}\n\n')
+    if form.validate_on_submit():
+        request = TradeRequest.query.get_or_404(int(form.request_id.data))
+        return handle_request_response(request, form)
     return render_template('card.html', card=card, requests=requests, form=form)
 
 @app.route('/cards/<int:id>/edit', methods=['GET', 'POST'])
@@ -246,17 +205,10 @@ def edit_card(id):
         if form.image.data:
             try:
                 img = Image.open(request.files[form.image.name])
-                large = (600, 600)
-                img.thumbnail(large)
-                key_stub = f"card_images/{card.id}_full"
-                file_key = handle_image_upload(img, key_stub)
-                thumb_key_stub = f"card_images/{card.id}_thumb"
-                size = (150, 150)
-                img.thumbnail(size)
-                thumb_file_key = handle_image_upload(img, thumb_key_stub)
-                card.img_url = file_key
+                upload_img(img, card)
+                card.has_img = True
                 db.session.commit()
-            except:
+            except UnidentifiedImageError:
                 flash("Image file is unsupported type", 'error')
         try:
             db.session.commit()
@@ -315,7 +267,7 @@ def delete_card(id):
     try:
         db.session.commit()
         flash("Card Deleted!")
-        if card.img_url: 
+        if card.has_img: 
             delete_record_from_s3(card)
         return redirect(f'/users/{card.user.id}')
     except:
@@ -331,19 +283,6 @@ def show_ebay_price_lookup():
 
 @app.route('/api/cards')
 def get_cards():
-    if not g.user:
-        return redirect('/')
-    #results = []
-    # query = Card.query
-    # tokens = request.args.get('tokens', None)
-    # if tokens:
-    #     json_tokens = json.loads(tokens)
-    #     for token in json_tokens:
-    #         query = query.filter(Card.title.ilike(f'%{token}%'))
-    # cards = query.all()
-    # for card in cards:
-    #     results.append(card.serialize())
-    # return jsonify(results=results)
     limit = request.args.get('limit', None)
     offset = request.args.get('offset', 0)
     name = request.args.get('searchStr')

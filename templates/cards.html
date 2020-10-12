@@ -18,12 +18,12 @@
     <div class="collection-cell">
         <div class="cell-image-container">
             <img src=
-            {% if card.img_url %}
+            {% if card.has_img %}
             "{{card.thumb_url()}}"
             {% else %}
             "/static/images/default.jpg"
             {% endif %}
-             alt="">
+             alt="" onerror="this.src='/static/images/default.jpg';">
         </div>
         <p class="cell-title">{{card.to_string()}}</p>
     </div>

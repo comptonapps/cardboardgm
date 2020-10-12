@@ -16,8 +16,6 @@ class CellCollectionListener {
     }
 
     async init() {
-        console.log('HERE')
-        console.log(this.limit);
         if (this.limit === 0) {
             this.listening = false;
         }

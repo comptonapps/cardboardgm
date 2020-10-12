@@ -23,13 +23,13 @@
         </div>
     </div>
     <div class="banner-card-container">
-        <img src="{% if card.img_url %}
-                  {{card.full_img_url()}}
+        <img src="{% if card.has_img %}
+                  {{card.img_url()}}
                   {% else %}
                   /static/images/default.jpg
-                  {% endif %}" alt="">
+                  {% endif %}" alt="Image of {{card.to_string()}}" onerror="this.src='/static/images/default.jpg'; document.querySelector('#detail-btn').remove();">
         {% if card.img_url %}
-        <button id="detail-btn" class="banner-btn green" data-url="{{card.full_img_url()}}"">View Large Image</button>
+        <button id="detail-btn" class="banner-btn green" data-url="{{card.img_url()}}"">View Large Image</button>
         {% endif %}
     </div>
 </div>
@@ -52,7 +52,7 @@
                                         {{item.info.thumb_url()}}
                                         {% else %}
                                         /static/images/default.jpg
-                                        {% endif %}" alt="">
+                                        {% endif %}" alt="Image of {{item.info.to_string()}}">
                             <p>{{item.info.title}} {{item.info.id}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
@@ -62,7 +62,7 @@
                                         {{item.info.thumb_url()}}
                                         {% else %}
                                         /static/images/default.jpg
-                                        {% endif %}" alt="">
+                                        {% endif %}" alt="Image of {{item.info.to_string()}}">
                             <p>{{item.info.title}} {{item.info.id}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
@@ -78,7 +78,7 @@
                                         {{item.info.thumb_url()}}
                                         {% else %}
                                         /static/images/default.jpg
-                                        {% endif %}" alt="">
+                                        {% endif %}" alt="Image of {{item.info.to_string()}}">
                             <p>{{item.info.title}} {{item.info.id}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>
@@ -88,7 +88,7 @@
                                       {{item.info.thumb_url()}}
                                       {% else %}
                                       /static/images/default.jpg
-                                      {% endif %}" alt="">
+                                      {% endif %}" alt="Image of {{item.info.to_string()}}">
                             <p>{{item.info.title}} {{item.info.id}}</p>
                             <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
                         </div>

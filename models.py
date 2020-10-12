@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy 
 from flask_bcrypt import Bcrypt 
-from constants import AWS_URL
+from constants import AWS_URL, IMG_FORMAT
 import datetime
+
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -34,8 +35,6 @@ class RequestCard(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey("cards.id", ondelete="CASCADE"), primary_key=True, nullable=False)
     requested = db.Column(db.Boolean, default=False)
 
-
-
 class User(db.Model):
 
     __tablename__ = "users"
@@ -46,7 +45,7 @@ class User(db.Model):
     email = db.Column(db.Text, nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
-    img_url = db.Column(db.Text)
+    has_img = db.Column(db.Boolean, default=None)
     last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     cards = db.relationship("Card", backref="user", order_by="Card.year.desc()", cascade='all, delete-orphan')
@@ -54,8 +53,13 @@ class User(db.Model):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def update(self, form):
+        self.email = form.email.data
+        self.first_name = form.first_name.data
+        self.last_name = form.last_name.data
+
     @classmethod
-    def register(cls, username, password, email, first_name, last_name, img_url=None):
+    def register(cls, username, password, email, first_name, last_name, has_img=False):
 
         hashed = bcrypt.generate_password_hash(password)
         pwd_utf8 = hashed.decode("utf8")
@@ -65,29 +69,27 @@ class User(db.Model):
                    email=email,
                    first_name=first_name,
                    last_name=last_name,
-                   img_url=img_url)
+                   has_img=has_img)
 
     @classmethod
     def authenticate(cls, username, password):
-
         user = User.query.filter_by(username=username).first()
-
         if user and bcrypt.check_password_hash(user.password, password):
             return user
         else:
             return False
 
-    def imgurl(self):
-        if self.img_url:
-            return f"{AWS_URL}{self.img_url}"
-        else:
-            return None
+    def S3_large_key(self):
+        return f'users/profile-img/{self.id}/large.{IMG_FORMAT}'
 
-    def thumburl(self):
-        if self.img_url:
-            return f"{AWS_URL}profile-images/{self.id}/{self.id}_thumb.JPEG"
-        else:
-            return None
+    def S3_thumb_key(self):
+        return f'users/profile-img/{self.id}/thumb.{IMG_FORMAT}'
+
+    def img_url(self):
+        return f'{AWS_URL}{self.S3_large_key()}'
+
+    def thumb_url(self):
+        return f'{AWS_URL}{self.S3_thumb_key()}'
 
     def serialize(self):
         return {'username'   : self.username,
@@ -95,8 +97,8 @@ class User(db.Model):
                 'last_name'  : self.last_name,
                 'email'      : self.email,
                 'id'         : self.id,
-                'img_url'    : self.imgurl(),
-                'thumb_url'  : self.thumburl()
+                'img_url'    : self.img_url(),
+                'thumb_url'  : self.thumb_url()
                 }
 
 
@@ -114,14 +116,13 @@ class Card(db.Model):
     __tablename__ = "cards"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    #master = db.Column(db.Integer, db.ForeignKey("card_masters.id"))
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     player = db.Column(db.Text, nullable=False)
     year = db.Column(db.Integer, nullable=False)
     set_name = db.Column(db.Text, nullable=False)
     number = db.Column(db.Text)
     desc = db.Column(db.Text)
-    img_url = db.Column(db.Text, default=None)
+    has_img = db.Column(db.Boolean, default=None)
     title = db.Column(db.Text, default=None)
     last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
@@ -134,30 +135,32 @@ class Card(db.Model):
                 'set_name'    : self.set_name,
                 'number'      : self.number,
                 'description' : self.desc,
-                'img_url'     : self.img_url,
                 'title'       : self.to_string(),
                 'thumb_url'   : self.thumb_url(),
-                'full_url'    : self.full_img_url(),
+                'full_url'    : self.img_url(),
                 'id'          : self.id }
 
     def to_string(self):
         return f"{self.year} {self.set_name} #{self.number} {self.player} {self.desc}"
 
-    def full_img_url(self):
-        return f"{AWS_URL}{self.img_url}"
+    def S3_large_key(self):
+        return f'cards/{self.year}/{self.number}/{self.id}/large.{IMG_FORMAT}'
+
+    def S3_thumb_key(self):
+        return f'cards/{self.year}/{self.number}/{self.id}/thumb.{IMG_FORMAT}'
+
+    def img_url(self):
+        return f'{AWS_URL}{self.S3_large_key()}'
 
     def thumb_url(self):
-        if self.img_url:
-            thumbnail_url = self.img_url.replace("_full", "_thumb")
-            return f"{AWS_URL}{thumbnail_url}"
-        else:
-            return None
+        return f'{AWS_URL}{self.S3_thumb_key()}'
 
     @classmethod
-    # def create(cls, owner_id, player, year, set_name, number, desc, img_url=None):
-    #     return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}", img_url=img_url)
-    def create(cls, form, owner_id, img_url=None):
-        return cls(owner_id=owner_id, player=form.player.data, year=form.year.data, set_name=form.set_name.data, number=form.number.data, desc=form.desc.data, title=f"{form.year.data} {form.set_name.data} #{form.number.data} {form.player.data} {form.desc.data}", img_url=img_url)
-
+    def create(cls, owner_id, player, year, set_name, number, desc, has_img=False):
+        return cls(owner_id=owner_id, player=player, year=year, set_name=set_name, number=number, desc=desc, title=f"{year} {set_name} #{number} {player} {desc}", has_img=has_img)
+    
+    @classmethod
+    def createFromForm(cls, form, owner_id, has_img=False):
+        return cls(owner_id=owner_id, player=form.player.data, year=form.year.data, set_name=form.set_name.data, number=form.number.data, desc=form.desc.data, title=f"{form.year.data} {form.set_name.data} #{form.number.data} {form.player.data} {form.desc.data}", has_img=has_img)
 
 

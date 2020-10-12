@@ -2,11 +2,11 @@
 {% block title %}Collection from {{user.username}} - CardboardGM{% endblock %}
 {% block content %}
 <div class="profile-summary blue">
-    <img src="{% if not user.img_url%}
+    <img src="{% if not user.has_img %}
     /static/images/no-avatar.png
     {% else %}
-    {{user.imgurl()}}
-    {% endif %}" alt="profile image" class="profile-img-full">
+    {{user.img_url()}}
+    {% endif %}" alt="profile image" class="profile-img-full" onerror="this.src='/static/images/no-avatar.png';">
 
     <h1>{{user.username}}</h1>
     <p>{{user.full_name()}}</p>
@@ -30,7 +30,6 @@
     <form action="/users/{{user.id}}/add_card">
         <button class="banner-btn green">Add to Collection</button>
     </form>
-    <!-- <a href="/users/{{user.id}}/add_card" class="form-btn green">Add To Collection</a> -->
     {% endif %}
     <div>
         {% if cards %}
@@ -40,12 +39,12 @@
                 <div class="collection-cell">
                     <div class="cell-image-container">
                         <img src=
-                        {% if card.img_url %}
+                        {% if card.has_img %}
                         "{{card.thumb_url()}}"
                         {% else %}
                         "/static/images/default.jpg"
                         {% endif %}
-                         alt="" onerror="this.src='static/images/default.jpg';">
+                         alt="" onerror="this.src='/static/images/default.jpg';">
                     </div>
                     <p class="cell-title">{{card.to_string()}}</p>
                 </div>

@@ -6,12 +6,12 @@
 <h1>EDIT PROFILE: {{user.username}}</h1>
 <p>Current User Image</p>
     <img src=
-    {% if user.img_url %}
-    "{{user.thumburl()}}"
+    {% if user.has_img %}
+    "{{user.thumb_url()}}"
     {% else %}
     "/static/images/no-avatar.png"
     {% endif %}
-    alt="" id="edit-avatar">
+    alt="" id="edit-avatar" onerror="this.src='/static/images/default.jpg';">
 <div class="form-container">
     <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}

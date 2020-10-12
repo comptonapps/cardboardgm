@@ -59,6 +59,7 @@ class CardCell extends Cell {
         } else {
             this.setImageSource('/static/images/default.jpg');
         }
+        this.imageElement.setAttribute('onerror', `this.src="${DEFAULT_CARD_IMAGE}"`)
     }
 
     getTitleContainer() {
@@ -89,6 +90,7 @@ class UserCell extends Cell {
             this.setImageSource('/static/images/no-avatar.png')
         }
         this.imageElement.classList.add('avatar');
+        this.imageElement.setAttribute('onerror', `this.src="${DEFAULT_PROFILE_IMAGE}"`)
     }
 
     getTitleContainer() {

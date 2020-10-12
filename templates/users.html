@@ -15,7 +15,7 @@
     <a href="/users/{{user.id}}">
         <div class="collection-cell">
             <div class="cell-image-container">
-                <img src="{% if user.img_url %}{{user.thumburl()}}{% else %}/static/images/no-avatar.png{% endif %}" class="avatar" alt="" onerror="this.src='/static/images/no-avatar.png';">
+                <img src="{% if user.has_img %}{{user.thumb_url()}}{% else %}/static/images/no-avatar.png{% endif %}" class="avatar" alt="" onerror="this.src='/static/images/no-avatar.png';">
             </div>
             <p class="cell-title-user">{{user.username}}</p>
         </div>
