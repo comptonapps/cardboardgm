@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% block title %}Collection from {{user.username}} - CardboardGM{% endblock %}
 {% block content %}
 <div class="profile-summary blue">
     <img src="{% if not user.img_url%}
