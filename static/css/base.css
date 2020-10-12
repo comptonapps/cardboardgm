@@ -687,6 +687,11 @@ input[type=submit] {
     padding: 12px;
 }
 
+.centered {
+    margin: 0 auto;
+    text-align: center;
+}
+
 @media(min-width:769px) {
 
     .navbar {
