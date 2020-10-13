@@ -91,6 +91,9 @@ class User(db.Model):
     def thumb_url(self):
         return f'{AWS_URL}{self.S3_thumb_key()}'
 
+    def possessive(self):
+        return f"{self.username}'" if self.username[len(self.username)-1] == "s" else f"{self.username}'s"
+
     def serialize(self):
         return {'username'   : self.username,
                 'first_name' : self.first_name,

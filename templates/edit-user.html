@@ -11,7 +11,7 @@
     {% else %}
     "/static/images/no-avatar.png"
     {% endif %}
-    alt="" id="edit-avatar" onerror="this.src='/static/images/default.jpg';">
+    alt="" id="edit-avatar" onerror="this.src='/static/images/no-avatar.png';">
 <div class="form-container">
     <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}

@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from helpers import delete_record_from_s3, upload_img
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
-from constants import API_LIMIT, AVATAR_LARGE, AVATAR_THUMB, CARD_LARGE, CARD_THUMB, S3, AWS_BUCKET, IMG_FORMAT
+from constants import API_LIMIT
 import io
 import json
 import datetime
@@ -112,6 +112,7 @@ def edit_user_form(id):
         user.email = form.email.data
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
+        user.last_updated = datetime.datetime.utcnow()
         try:
             db.session.commit()
             if form.image.data:
@@ -202,6 +203,7 @@ def edit_card(id):
     form = CardForm(obj=card)
     if form.validate_on_submit():
         load_card(card, form)
+        card.last_updated = datetime.datetime.utcnow()
         if form.image.data:
             try:
                 img = Image.open(request.files[form.image.name])
@@ -225,6 +227,7 @@ def load_card(card, form):
     card.number = form.number.data
     card.year = form.year.data
     card.desc = form.desc.data
+    
 
 @app.route('/cards/<int:id>/request')
 def request_trade(id):

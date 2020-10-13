@@ -18,7 +18,7 @@
 </div>
 
 <div class="two-item-banner">
-        <h1>CARDS</h1>
+        <h1>{%if g.user.id == user.id %}YOUR{% else %}{{user.possessive()}}{% endif %} COLLECTION</h1>
         <form action="">
             <div class="form-group">
                 <input type="text" class="search-field">
