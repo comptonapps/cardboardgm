@@ -37,7 +37,7 @@ def upload_img(img, obj):
 def upload_image_to_S3_bucket(img, key):
     stream = io.BytesIO()
     img.save(stream, format=IMG_FORMAT)
-    S3.put_object(Body=stream.getvalue(), Bucket=AWS_BUCKET, Key=key, ACL='public-read')
+    response = S3.put_object(Body=stream.getvalue(), Bucket=AWS_BUCKET, Key=key, ACL='public-read')
     if response['ResponseMetadata']['HTTPStatusCode'] != 200:
         raise ImageUploadException("Error uploading photo to network")
 

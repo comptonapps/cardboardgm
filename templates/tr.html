@@ -24,6 +24,7 @@
         width: 100%;
         display: flex;
         padding: 8px 4px;
+        background-color: white;
         border-bottom: 2px solid black;
     }
 
@@ -47,7 +48,7 @@
     <div class="trade-request-container">
         <h2>Request Trade</h2>
         <div class="form-group">
-            <input type="text" placeholder="Search Your Collection">
+            <input type="text" placeholder="Search Your Collection" id="search">
             <button>Search</button>
         </div>
         <div class="your-collection">
@@ -70,29 +71,60 @@
         </div>
     </div>
 
+    {% endblock %}
+
+    {% block scripts%}
+    <script>const cards = {{cards | tojson }};</script>
+
     <script>
+        let selectedIds = [];
         let dataLoaded = false;
         document.addEventListener('DOMContentLoaded', function() {
-            let checks = document.getElementsByClassName('check');
-            for (check of checks) {
-                if (check.checked) {
-                    console.log(check)
-                    let card = getCardFromJson(parseInt(check.dataset.id));
-                    console.log(card)
-                    selectedCards.append(getNewRequestCell(card));
-                }
-            }
+            clearCachedChecks();
         })
-        const cards = {{cards | tojson }};
+        
         const yourCollection = document.querySelector(".your-collection");
         const selectedCards = document.querySelector(".selected-cards");
         const sendBtn = document.querySelector("#send-request-btn");
+        const searchField = document.querySelector("#search");
+
+        function clearCachedChecks() {
+            let checks = document.getElementsByClassName('check');
+            for (check of checks) {
+                check.checked = false;
+            }
+        }
+
+        searchField.addEventListener('input', function() {
+            yourCollection.innerHTML = "";
+            let results = [...cards];
+            const tokens = searchField.value.toLowerCase().split(" ");
+            for (token of tokens) {
+                results = results.filter(el => el.title.toLowerCase().includes(token));
+            }
+            if (results.length === 0) {
+                const noResults = document.createElement('p').innerText = "No Results Found";
+                yourCollection.append(noResults);
+            } else {
+                results.forEach(result => {
+                    const newCell = getNewInCollectionCell(result);
+                    if (selectedIds.includes(result.id.toString())) {
+                        newCell.firstElementChild.checked = true;
+                    }
+                    yourCollection.append(newCell);
+                });
+            }
+        })
         yourCollection.addEventListener('click', (e) => {
             const target = e.target
             if (target.classList.contains('check')) {
                 if (target.checked) {
                     const card = getCardFromJson(parseInt(target.dataset.id));
                     selectedCards.append(getNewRequestCell(card));
+                    selectedIds.push(target.dataset.id)
+                    console.log(selectedIds);
+                } else {
+                    selectedCards.querySelector(`[data-id="${target.dataset.id}"]`).remove()
                 }
             }
             if (e.target.tagName == 'I') {
@@ -103,8 +135,20 @@
         selectedCards.addEventListener('click', function(e) {
             const target = e.target;
             if (target.tagName == 'INPUT') {
+                let id = target.parentElement.dataset.id;
+                let index = selectedIds.indexOf(id.toString());
+                if (index != -1){
+                    selectedIds.splice(index, 1)
+                    console.log(selectedIds)
+                }
                 target.parentElement.remove();
+                yourCollection.querySelector(`[data-id="${id}"]`).checked = false;
+
             }
+            if (target.tagName == "I") {
+                showImage(target.dataset.imgurl);
+            }
+            
         });
 
         function showImage(url) {
@@ -118,16 +162,26 @@
 
         function getCardFromJson(cid) {
             const { title, id, full_url } = cards.find(el => el.id === cid)
-            console.log(title);
             return { title, id, full_url };
         }
+
+        function getNewInCollectionCell(data) {
+            const cell = document.createElement('div');
+            cell.classList.add('request-cell')
+            cell.innerHTML = `<input type="checkbox" data-id=${data.id} class="check">
+                              <p>${data.title}</p>
+                              <span><i class="far fa-images" data-imgurl="${data.full_url}"></i></span>`
+            return cell;
+        }
+
+        
 
         function getNewRequestCell(data) {
             const cell = document.createElement('div');
             cell.classList.add('request-cell');
             cell.classList.add('selected')
             cell.dataset.id = data.id;
-            cell.innerHTML = `<input type="checkbox" checked class="sel-check">
+            cell.innerHTML = `<input type="checkbox" data-id="${data.id} "checked class="sel-check">
               <p>${data.title}</p>
               <span><i class="far fa-images" data-imgurl="${data.full_url}"></i></span>`;
             return cell;
@@ -140,16 +194,13 @@
             
             dataLoaded = true;
             let cells = document.getElementsByClassName('selected');
-            console.log(cells);
             selectedCardsIds = [];
             for (cell of cells) {
                 selectedCardsIds.push(parseInt(cell.dataset.id));
             }
             reqData = document.querySelector('#req_data');
-            reqData.value = JSON.stringify({c : selectedCardsIds});
-            console.log(document.querySelector('#req_data').value);
+            reqData.value = JSON.stringify({c : selectedIds});
             if (dataLoaded) {
-                console.log("sending")
                 sendBtn.click();
             }
         })

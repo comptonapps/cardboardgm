@@ -239,6 +239,10 @@ def create_trade_request(id):
     if g.user:
         if form.validate_on_submit():
             data = json.loads(form.req_data.data)
+            ids = data.get('c', [])
+            if len(ids) == 0:
+                flash('You must select cards to trade', 'error')
+                return redirect(request.url)
             new_request = TradeRequest(to_id=card.owner_id, from_id=g.user.id)
             db.session.add(new_request)
             db.session.commit()
@@ -303,30 +307,13 @@ def get_cards():
         results.append(card.serialize())
     return jsonify(results=results)
 
-@app.route('/api/users')
-def get_users():
-    if not g.user:
-        return redirect('/')
-    username = request.args.get('searchStr')
-    limit
-    user_results = []
-    if username:
-        query_results = User.query.filter(User.username.ilike(f'%{username}%'))
-        for result in query_results:
-            user_results.append(result.serialize())
-    else:
-        all_users = User.query.all()
-        for user in all_users:
-            user_results.append(user.serialize())
-    return jsonify(user_results)
-
 @app.route("/api/ebay")
 def ebay():
     query_string = request.args.get('item')
     return get_recent_prices(query_string)
 
-@app.route('/api/test-inf-scr')
-def infinite_test():
+@app.route('/api/users')
+def get_users():
     limit = request.args.get('limit', None)
     offset = request.args.get('offset', 0)
     name = request.args.get('searchStr')
