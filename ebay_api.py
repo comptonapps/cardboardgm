@@ -1,13 +1,16 @@
-from secrets import EBAY_KEY
+
 from constants import EBAY_URL_ENDPOINT, EBAY_RESULT_COUNT
 import requests
 from flask import jsonify
+import os
 
 def get_recent_prices(card_info):
 
+    ebay_key = os.environ.get('EBAY_KEY')
+
     res = requests.get(EBAY_URL_ENDPOINT, params={'keywords'                       : card_info,
                                                   'OPERATION-NAME'                 : "findCompletedItems",
-                                                  'SECURITY-APPNAME'               : EBAY_KEY,
+                                                  'SECURITY-APPNAME'               : ebay_key,
                                                   'paginationInput.entriesPerPage' : EBAY_RESULT_COUNT,
                                                   'RESPONSE-DATA-FORMAT'           : 'JSON',
                                                   'siteid'                         : 0,

@@ -1,7 +1,10 @@
 import boto3
-from secrets import AWS_ACCESS_KEY, AWS_SECRET_KEY
+import os
 
-S3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
+aws_access_key = os.environ.get('AWS_ACCESS_KEY')
+aws_secret_key = os.environ.get('AWS_SECRET_KEY')
+
+S3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
 AWS_BUCKET = "cardboardgmpics"
 AWS_URL = "https://cardboardgmpics.s3-us-west-2.amazonaws.com/"
 EBAY_RESULT_COUNT = 50
