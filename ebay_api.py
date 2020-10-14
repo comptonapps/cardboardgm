@@ -6,7 +6,8 @@ import os
 
 def get_recent_prices(card_info):
 
-    ebay_key = os.environ.get('EBAY_KEY')
+    ebay_key = os.environ.get('EBAY_KEY', "JonCompt-Cardgmsc-PRD-ac8eaa52b-5dfbb331")
+    print(ebay_key)
 
     res = requests.get(EBAY_URL_ENDPOINT, params={'keywords'                       : card_info,
                                                   'OPERATION-NAME'                 : "findCompletedItems",
@@ -18,6 +19,7 @@ def get_recent_prices(card_info):
                                                   'SERVICE-VERSION'                : '1.0.0',
                                                   'sortOrder'                      : 'EndTimeSoonest'})
     api_results = res.json()
+    print(api_results)
 
     result_list = []
 
@@ -32,7 +34,3 @@ def get_recent_prices(card_info):
             result_list.append(info)
 
     return jsonify(result_list)
-    # else:
-    #     return jsonify(result_list)
-    # print(f'\n\nFUCK\n\n')
-    # return jsonify({'results' : []})
