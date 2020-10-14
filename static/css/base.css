@@ -772,6 +772,14 @@ input[type=submit] {
         width: 100%;
     }
 
+    .collection-cell {
+        width: 200;
+    }
+
+    .cell-image-container {
+        height: 180px;
+    }
+
     .collection-container h2 {
         text-align: left;
         font-size: 1.8rem;
