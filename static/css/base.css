@@ -609,6 +609,13 @@ input[type=submit] {
     text-align: center;
 }
 
+.no-items {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #888888;
+    padding: 12px;
+}
+
 @media(min-width:769px) {
 
     .navbar {

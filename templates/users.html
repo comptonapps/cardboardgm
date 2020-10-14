@@ -11,6 +11,7 @@
     </form>
 </div>
 <h2 id="result-title">Showing <span class="search-results">All Managers</span></h2>
+{% if users %}
 <div class="cells-container">
     {% for user in users %}
     <a href="/users/{{user.id}}">
@@ -23,6 +24,9 @@
     </a>
     {% endfor %}
 </div>
+{% else %}
+<p class="no-items">No Managers in Database</p>
+{% endif %}
 {% endblock %}
 {% block scripts %}
 <script>
