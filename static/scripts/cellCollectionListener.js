@@ -8,6 +8,8 @@ class CellCollectionListener {
         this.cellContainer = document.querySelector('.cells-container');
         this.searchField = document.querySelector('.search-field');
         this.searchBtn = document.querySelector('.search-btn');
+        this.resultSpan = document.querySelector('.search-results')
+        this.initialResultSpanValue = this.resultSpan.innerText;
         this.offset = 0;
         this.limit = document.getElementsByClassName('collection-cell').length;
         this.searchStr;
@@ -25,6 +27,7 @@ class CellCollectionListener {
         this.searchBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             await this.searchUsers();
+            this.updateHeader(this.searchField.value)
         });
         
         window.addEventListener('resize', await this.sizeChange)
@@ -46,6 +49,18 @@ class CellCollectionListener {
             this.checkFilled(ach);
         }
         return;
+    }
+
+    updateHeader(val) {
+        console.log("update")
+        if(this.resultSpan) {
+            if (val && val !== "") {
+                this.resultSpan.innerText = `results for ${val}`;
+            } else {
+                this.resultSpan.innerText = this.initialResultSpanValue;
+            }
+        }
+        
     }
 
     searchUsers = async () => {
@@ -93,6 +108,7 @@ class CellCollectionListener {
             this.cellContainer.innerHTML = "";
             this.listening = true;
             await this.getMoreJson();
+            this.updateHeader(this.searchField.value)
         };
     }
 

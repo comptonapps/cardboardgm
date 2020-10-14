@@ -4,14 +4,14 @@
 <div class="two-item-banner">
     <h1>CARDS</h1>
     <form action="">
-        <div class="form-group">
+        <div class="search-group">
             <input type="text" class="search-field">
             <button class="search-btn">Search</button>
         </div>
     </form>
 </div>
 {% if cards|length > 0 %}
-<h2 id="result-title">Showing All Cards</h2>
+<h2 id="result-title">Showing <span class="search-results">All Cards</span></h2>
 <div class="cells-container">
 {% for card in cards %}
 <a href="/cards/{{card.id}}">
@@ -34,6 +34,7 @@
 {% endblock %}
 
 {% block scripts %}
+
 <script>
     let c = new CellCollectionListener(CardCell, '/api/cards', '/cards/');    
 </script>

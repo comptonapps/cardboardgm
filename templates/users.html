@@ -4,12 +4,13 @@
 <div class="two-item-banner">
     <h1>MANAGERS</h1>
     <form action="">
-        <div class="form-group">
+        <div class="search-group">
             <input type="text" class="search-field">
             <button class="search-btn">Search</button>
         </div>
     </form>
 </div>
+<h2 id="result-title">Showing <span class="search-results">All Managers</span></h2>
 <div class="cells-container">
     {% for user in users %}
     <a href="/users/{{user.id}}">

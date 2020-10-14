@@ -30,85 +30,6 @@ button, input[type=submit] {
     cursor: pointer;
 }
 
-
-
-/* nav {
-    background-color: black;
-    color: white;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-} */
-/* ######################## */
-
-/* nav a, nav a:visited {
-    color: white;
-    text-decoration: none;
-}
-
-.brand {
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-.nav-links {
-    display: none;
-}
-
-
-.nav-links ul{
-    list-style: none;
-    height: 100%;
-    display: flex;
-    margin-right: 12px;
-
-}
-
-.nav-links li {
-    height: 100%;
-
-}
-
-.nav-link a {
-    display: inline-block;
-    background-color: black;
-    height: 100%;
-    width: 100%;
-    line-height: 60px;
-    padding: 0 12px;
-    text-transform: uppercase;
-}
-
-.nav-link a:hover {
-    background-color: white;
-    color: black;
-}
-
-.toggle-button {
-    display: flex;
-
-}
-
-.toggle-button {
-    margin-right: 12px;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 25px;
-}
-
-.toggle-button .bar {
-    height: 3px;
-    width: 100%;
-    background-color: white;
-
-}
-
-.navbar {
-    flex-direction: column;
-} */
-
 /* ############################## */
 
 .navbar {
@@ -351,16 +272,7 @@ input[type='file'] {
     margin: 6px;
 }
 
-.collection-container {
-    padding: 12px;
-    transition: all 0.8s;
-}
-
-.collection-container h2 {
-    font-size: 1.4rem;
-    text-align: center;
-    text-transform: uppercase;
-}
+/*   ----------Cells Collection---------      */
 
 .cells-container {
     display: flex;
@@ -392,6 +304,7 @@ input[type='file'] {
 
 .cell-image-container img {
     max-height: 160px;
+    max-width: 90%;
 }
 
 .cell-title {
@@ -453,15 +366,13 @@ input[type='file'] {
     padding: 12px;
 }
 
-.title-search-banner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
 .two-item-banner h1 {
     font-size: 2.8rem;
+    text-align: center;
+}
+
+.add-card {
+    text-align: center;
 }
 
 .search-form {
@@ -473,8 +384,7 @@ input[type='file'] {
     width: 100%;
 }
 
-.search-input {
-    height: 30px;
+.search-group .search-field {
     flex: 1;
 }
 
@@ -491,11 +401,17 @@ input[type='file'] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin: 12px;
 
 }
 
 .two-item-banner form {
-    display: block;
+    width: 90%;
+    margin: 12px 0;
+}
+
+.two-item-banner form .search-field {
+    flex: 1;
 }
 
 .avatar {
@@ -578,6 +494,7 @@ input[type='file'] {
 
 #result-title, #request-title {
     text-align: center;
+    margin: 0 12px;
 }
 
 .no-results {
@@ -777,6 +694,14 @@ input[type=submit] {
     .two-item-banner {
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    .two-item-banner form {
+        width: 40%;
+    }
+
+    .add-card {
+        text-align: left;
     }
 
     .card-detail-banner {

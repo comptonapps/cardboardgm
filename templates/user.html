@@ -14,45 +14,43 @@
     <form action="/users/{{g.user.id}}/edit">
         <button class="banner-btn dark-grey">Edit Profile</button>
     </form>
+    <form action="/users/{{user.id}}/add_card" class="add-card">
+        <button class="banner-btn green">Add to Collection</button>
+    </form>
     {% endif %}
 </div>
 
 <div class="two-item-banner">
-        <h1>{%if g.user.id == user.id %}YOUR{% else %}{{user.possessive()}}{% endif %} COLLECTION</h1>
-        <form action="">
-            <div class="form-group">
-                <input type="text" class="search-field">
-                <button class="search-btn">Search</button>
-            </div>
-        </form>
-    </div>
-    {% if g.user.id == user.id %}
-    <form action="/users/{{user.id}}/add_card">
-        <button class="banner-btn green">Add to Collection</button>
-    </form>
-    {% endif %}
-    <div>
-        {% if cards %}
-        <div class="cells-container">
-        {% for card in cards %}
-            <a href="/cards/{{card.id}}">
-                <div class="collection-cell">
-                    <div class="cell-image-container">
-                        <img src=
-                        {% if card.has_img %}
-                        "{{card.thumb_url()}}"
-                        {% else %}
-                        "/static/images/default.jpg"
-                        {% endif %}
-                         alt="" onerror="this.src='/static/images/default.jpg';">
-                    </div>
-                    <p class="cell-title">{{card.to_string()}}</p>
-                </div>
-            </a>
-        {% endfor %}
+    <h1>{%if g.user.id == user.id %}YOUR{% else %}{{user.possessive()}}{% endif %} COLLECTION</h1>
+    <form>
+        <div class="search-group">
+            <input type="text" class="search-field">
+            <button class="search-btn">Search</button>
         </div>
-        {% endif %}
-    </div>
+    </form>
+</div>
+{% if cards %}
+<h2 id="result-title">Showing <span class="search-results">All Cards</span></h2>
+<div class="cells-container">
+{% for card in cards %}
+    <a href="/cards/{{card.id}}">
+        <div class="collection-cell">
+            <div class="cell-image-container">
+                <img src=
+                {% if card.has_img %}
+                "{{card.thumb_url()}}"
+                {% else %}
+                "/static/images/default.jpg"
+                {% endif %}
+                    alt="" onerror="this.src='/static/images/default.jpg';">
+            </div>
+            <p class="cell-title">{{card.to_string()}}</p>
+        </div>
+    </a>
+{% endfor %}
+</div>
+{% endif %}
+
 
 {% endblock %}
 
