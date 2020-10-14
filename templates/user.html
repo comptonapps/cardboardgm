@@ -24,7 +24,7 @@
     <h1>{%if g.user.id == user.id %}YOUR{% else %}{{user.possessive()}}{% endif %} COLLECTION</h1>
     <form>
         <div class="search-group">
-            <input type="text" class="search-field">
+            <input type="text" class="search-field" placeholder="Search Collection">
             <button class="search-btn">Search</button>
         </div>
     </form>

@@ -5,7 +5,7 @@
     <h1>CARDS</h1>
     <form action="">
         <div class="search-group">
-            <input type="text" class="search-field">
+            <input type="text" class="search-field" placeholder="Search Cards in Database">
             <button class="search-btn">Search</button>
         </div>
     </form>
@@ -31,7 +31,7 @@
 {% endfor %}
 </div>
 {% else %}
-<p class="no-items">No Cards in Collection</p>
+<p class="no-items">No Cards in Database</p>
 {% endif %}
 {% endblock %}
 

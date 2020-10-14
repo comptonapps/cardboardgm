@@ -46,6 +46,9 @@ class CellCollectionListener {
             if (res.data.results.length < this.limit) {
                 this.listening = false;
             }
+            if (res.data.results.length === 0 && this.cellContainer.innerHTML === "") {
+                this.noResultsFound();
+            }
             this.checkFilled(ach);
         }
         return;
@@ -63,9 +66,13 @@ class CellCollectionListener {
         
     }
 
+    noResultsFound() {
+        this.cellContainer.innerHTML = "<p class='no-items'>No Results Found</p>"
+    }
+
     searchUsers = async () => {
         this.offset = this.limit * -1;
-        this.searchStr = this.searchField.value;
+        this.searchStr = this.searchField.value.replace(/[.,\/#!$%\^&\*;:{}=\_`~()]/g,"");
         this.cellContainer.innerHTML = "";
         this.listening = true;
         await this.getMoreJson();

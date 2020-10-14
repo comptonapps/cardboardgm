@@ -263,7 +263,7 @@ def create_trade_request(id):
             card_json = []
             for card in g_user_cards:
                 card_json.append(card.serialize())
-            return render_template('tr.html', cards=card_json, requested_card=requested_card, form=form)
+            return render_template('trade-request.html', cards=card_json, requested_card=requested_card, form=form)
     return redirect('/')
 
 

@@ -210,7 +210,7 @@ button, input[type=submit] {
     cursor: pointer;
 }
 
-.form-btn:active, .banner-btn:active, .items-box-cell button:active {
+.form-btn:active, .banner-btn:active, .items-box-cell button:active, .trade-btn:active {
     background-color: white;
     color: black;
 }
@@ -386,6 +386,16 @@ input[type='file'] {
 
 .search-group .search-field {
     flex: 1;
+}
+
+.search-group-ebay .search-field {
+    margin-top: 20px;
+    width: 50%;
+    height: 30px;
+}
+
+.search-group-ebay {
+    text-align: center;
 }
 
 .search-btn {
@@ -614,6 +624,85 @@ input[type=submit] {
     text-align: center;
     color: #888888;
     padding: 12px;
+}
+
+/* --------------- CREATE TRADE REQUEST --------------- */
+
+.space {
+    margin: 8px;
+}
+
+.trade-request-container {
+    padding: 12px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.your-collection, .selected-cards {
+    border: 2px solid black;
+    margin: 8px 0;
+    height: 30%;
+    min-height: 150px;
+    overflow: scroll;
+}
+
+.request-cell {
+    width: 100%;
+    display: flex;
+    padding: 8px 4px;
+    background-color: white;
+    border-bottom: 2px solid black;
+}
+
+.tr-span {
+    color: red;
+    cursor: pointer;
+}
+
+.tr-span:active {
+    color: white;
+}
+
+.request-cell input {
+    margin-right: 8px;
+}
+
+.request-cell p {
+    margin-right: 8px;
+}
+
+.trade-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.trade-control form, .trade-control button {
+    flex: 1;
+    margin-right: 8px;
+}
+
+.trade-control form button {
+    width: 100%;
+}
+
+.trade-btn {
+    padding: 8px;
+    margin: 8px;
+}
+
+@media(min-width: 769px) {
+    .your-collection, .selected-cards {
+        max-width: 70%;
+        margin: auto;
+        margin-top: 8px;
+    }
+
+    .trade-control {
+        max-width: 70%;
+    }
 }
 
 @media(min-width:769px) {
