@@ -16,8 +16,15 @@
     <script src="/static/scripts/modalWindow.js"></script>
     <script src="/static/scripts/ebay-cell.js"></script>
     <script src="/static/scripts/cellCollectionListener.js"></script>
-    
+    <style>
+        .fas {
+            display: inline;
+        }
 
+        .fa-baseball-ball {
+            display: inline;
+        }
+    </style>
     {% block styles %}{% endblock %}
 </head>
 <body>
@@ -31,6 +38,7 @@
             {% if g.user %}
             <div class="navbar-links">
                 <ul>
+                    <li><a href="/users/{{g.user.id}}">{{g.user.username}}</a></li>
                     <li><a href="/cards">CARDS</a></li>
                     <li><a href="/users">MANAGERS</a></li>
                     <li><a href="/pricing">PRICING</a></li>

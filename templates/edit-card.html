@@ -2,31 +2,33 @@
 {% block title %}Edit {{card.title}}{% endblock %}
 {% block content %}
 <div class="bullseye">
-    <div class="form-container">
         <h1>EDIT CARD</h1>
         <div class="form-img-container">
             <img src="{% if card.img_url %}
                   {{card.thumb_url()}}
                   {% else %}
                   /static/images/default.jpg
-                  {% endif %}" alt="">
+                  {% endif %}" alt="Profile Image">
         </div>
+    <div class="form-container">
+            
         <form method='POST' enctype="multipart/form-data">
             {{ form.hidden_tag() }}
         
             {% for field in form
                 if field.widget.input_type != 'hidden' %}
-        
-            <div class="form-group">
-                {{field.label(class_="form-label")}}
-                {{field(class_="form-field")}}
-            </div>
-            
-            {% for error in field.errors %}
-            <div class="field-error">
-                <p class="error-text">{{error}}</p>
-            </div>
+            <div class="form-element">
+                <div class="form-group">
+                    {{field.label(class_="form-label")}}
+                    {{field(class_="form-field")}}
+                </div>
+                
+                {% for error in field.errors %}
+                <div class="field-error">
+                    <p class="error-text">{{error}}</p>
+                </div>
             {% endfor %}
+            </div>
         
             {% endfor %}
             <button class="form-btn green">Save Changes</button>

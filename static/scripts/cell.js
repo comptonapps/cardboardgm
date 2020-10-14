@@ -60,6 +60,7 @@ class CardCell extends Cell {
             this.setImageSource('/static/images/default.jpg');
         }
         this.imageElement.setAttribute('onerror', `this.src="${DEFAULT_CARD_IMAGE}"`)
+        this.imageElement.setAttribute('alt', `Image of ${this.json.title}`)
     }
 
     getTitleContainer() {
@@ -91,6 +92,7 @@ class UserCell extends Cell {
         }
         this.imageElement.classList.add('avatar');
         this.imageElement.setAttribute('onerror', `this.src="${DEFAULT_PROFILE_IMAGE}"`)
+        this.imageElement.setAttribute('alt', `Image of ${this.json.username}`)
     }
 
     getTitleContainer() {

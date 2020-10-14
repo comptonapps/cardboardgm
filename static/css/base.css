@@ -158,6 +158,7 @@ button, input[type=submit] {
     flex-direction: column;
     border-radius: 8px;
     width: 350px;
+    margin-top: 18px;
 }
 
 .form-container h1 {
@@ -184,11 +185,15 @@ button, input[type=submit] {
     
 }
 
+.form-element {
+    width: 100%;
+    margin: 18px 0;
+}
+
 .form-group {
     width: 100%;
     display: flex;
     align-items: center;
-    margin: 24px 0;
 
 }
 
@@ -219,6 +224,7 @@ button, input[type=submit] {
     font-size: 0.8rem;
     color: red;
     text-align: left;
+    margin: 4px;
 }
 
 input[type='file'] {
@@ -324,9 +330,10 @@ input[type='file'] {
 
 #edit-avatar {
     height: 100px;
-    min-height: 50px;
+    min-height: 100px;
     border-radius: 50%;
     border: 2px solid black;
+    margin: 4px;
 }
 
 .card-detail-banner h1, .card-detail-banner h3 {
@@ -693,18 +700,6 @@ input[type=submit] {
     margin: 8px;
 }
 
-@media(min-width: 769px) {
-    .your-collection, .selected-cards {
-        max-width: 70%;
-        margin: auto;
-        margin-top: 8px;
-    }
-
-    .trade-control {
-        max-width: 70%;
-    }
-}
-
 @media(min-width:769px) {
 
     .navbar {
@@ -747,7 +742,7 @@ input[type=submit] {
     }
 
     .form-container {
-        margin-top: 30px;
+        margin-top: 20px;
     }
 
     .profile-img-full {
@@ -837,5 +832,15 @@ input[type=submit] {
 
     .trade-cell {
         max-width: 75%;
+    }
+
+    .your-collection, .selected-cards {
+        max-width: 70%;
+        margin: auto;
+        margin-top: 8px;
+    }
+
+    .trade-control {
+        max-width: 70%;
     }
 }

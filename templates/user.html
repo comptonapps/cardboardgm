@@ -42,7 +42,7 @@
                 {% else %}
                 "/static/images/default.jpg"
                 {% endif %}
-                    alt="" onerror="this.src='/static/images/default.jpg';">
+                    alt="Image of {{card.title}}" onerror="this.src='/static/images/default.jpg';">
             </div>
             <p class="cell-title">{{card.to_string()}}</p>
         </div>

@@ -18,7 +18,7 @@ class RegisterForm(LoginForm):
     last_name = StringField("Last Name", validators=[InputRequired(), Length(max=30)])
 
 class EditUserForm(RegisterForm):
-    image = FileField("Avatar Img", validators=[Optional()])
+    image = FileField("Avatar Img", validators=[Optional()], id="foo")
 
 class PlayerForm(FlaskForm):
     player = StringField("Player", validators=[InputRequired()])

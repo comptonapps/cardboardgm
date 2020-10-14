@@ -10,7 +10,7 @@
             
                 {% for field in form
                     if field.widget.input_type != 'hidden' %}
-            
+            <div class="form-element">
                 <div class="form-group">
                     {{field.label(class_="form-label")}}
                     {{field(class_="form-field")}}
@@ -21,7 +21,7 @@
                     <p class="error-text">{{error}}</p>
                 </div>
                 {% endfor %}
-            
+            </div>
                 {% endfor %}
                 <button class="btn submit form-btn green">Register</button>
             </form>
