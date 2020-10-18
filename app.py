@@ -15,7 +15,7 @@ USER_ID = "user_id"
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', "thisIsASuperSecretKey")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///cg_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['SQLALCHEMY_ECHO'] = True 
@@ -269,18 +269,22 @@ def create_trade_request(id):
 
 @app.route('/cards/<int:id>/delete', methods=['POST'])
 def delete_card(id):
-    card = Card.query.get_or_404(id)
-    db.session.delete(card)
-    try:
-        db.session.commit()
-        flash("Card Deleted!")
-        if card.has_img: 
-            delete_record_from_s3(card)
-        return redirect(f'/users/{card.user.id}')
-    except:
-        db.session.rollback()
-        flash('Error deleting card')
-        return redirect(request.url)
+    if g.user:
+        card = Card.query.get_or_404(id)
+        db.session.delete(card)
+        try:
+            db.session.commit()
+            flash("Card Deleted!")
+            if card.has_img: 
+                delete_record_from_s3(card)
+            return redirect(f'/users/{g.user.id}')
+        except:
+            db.session.rollback()
+            flash('Error deleting card')
+            return redirect(request.url)
+    else:
+        flash("You must be logged in for access")
+        return redirect('/')
 
 @app.route('/pricing')
 def show_ebay_price_lookup():
@@ -327,8 +331,6 @@ def get_users():
     if limit:
         query = query.limit(limit)
     obj_users = query.all()
-    for user in obj_users:
-        print(user)
     users = []
     for user in obj_users:
         users.append(user.serialize())
@@ -373,6 +375,7 @@ def handle_request_response(request, form):
                 for request in card_requests:
                     request.valid_items = False
             request.accepted = True
+            request.valid_items = False
             request.last_updated = datetime.datetime.utcnow()
             #### set other trade_requests with cards to valid_items = False
             db.session.commit()

@@ -7,17 +7,6 @@ class ImageUploadException(Exception):
     def __init__(self, msg):
         super().__init__(msg)
 
-# def handle_image_upload(img_data, key_stub):
-#     thumb_img_key = upload_image(img_data, key_stub)
-#     return thumb_img_key
-
-# def upload_image(img_data, key_stub):
-#     img_bytes = io.BytesIO()
-#     img_data.save(img_bytes, format=img_data.format)
-#     file_key = f"{key_stub}.{img_data.format}"
-#     response = S3.put_object(Body=img_bytes.getvalue(), Bucket=AWS_BUCKET, Key=file_key, ACL='public-read')
-#     
-#     return file_key
 def upload_img(img, obj):
     images = [img.copy(), img.copy()]
     for img in images:

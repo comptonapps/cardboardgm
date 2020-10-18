@@ -1,9 +1,10 @@
 from models import User, Card, TradeRequest, RequestCard, db
 from app import app
 
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgres:///cg_test"
+
 db.drop_all()
 db.create_all()
-
 def seed_db():
 
     jcom = User.register(username="jcompton", password="qqqqqqqq", first_name="Jon", last_name="Compton", email="j@c.com", has_img=True)

@@ -22,7 +22,6 @@ class TradeRequest(db.Model):
     valid_items = db.Column(db.Boolean, default=True)
     last_updated = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-    #cards = db.relationship('Card', secondary='request_cards', backref="trade_requests", cascade='all, delete-orphan')
     to_user = db.relationship('User', foreign_keys=[to_id], backref="trades_received")
     from_user = db.relationship('User', foreign_keys=[from_id], backref="trades_sent")
     items = db.relationship('RequestCard', backref="request", cascade='all, delete')
@@ -58,27 +57,6 @@ class User(db.Model):
         self.first_name = form.first_name.data
         self.last_name = form.last_name.data
 
-    @classmethod
-    def register(cls, username, password, email, first_name, last_name, has_img=False):
-
-        hashed = bcrypt.generate_password_hash(password)
-        pwd_utf8 = hashed.decode("utf8")
-
-        return cls(username=username,
-                   password=pwd_utf8,
-                   email=email,
-                   first_name=first_name,
-                   last_name=last_name,
-                   has_img=has_img)
-
-    @classmethod
-    def authenticate(cls, username, password):
-        user = User.query.filter_by(username=username).first()
-        if user and bcrypt.check_password_hash(user.password, password):
-            return user
-        else:
-            return False
-
     def S3_large_key(self):
         return f'users/profile-img/{self.id}/large.{IMG_FORMAT}'
 
@@ -103,16 +81,27 @@ class User(db.Model):
                 'img_url'    : self.img_url(),
                 'thumb_url'  : self.thumb_url()
                 }
+    
+    @classmethod
+    def register(cls, username, password, email, first_name, last_name, has_img=False):
 
+        hashed = bcrypt.generate_password_hash(password)
+        pwd_utf8 = hashed.decode("utf8")
 
-class CardMaster(db.Model):
+        return cls(username=username,
+                   password=pwd_utf8,
+                   email=email,
+                   first_name=first_name,
+                   last_name=last_name,
+                   has_img=has_img)
 
-    __tablename__ = "card_masters"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    player = db.Column(db.String(50), nullable=False)
-    set_name = db.Column(db.String(50), nullable=False)
-    number = db.Column(db.String(20), nullable=False)
+    @classmethod
+    def authenticate(cls, username, password):
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+        else:
+            return False
 
 class Card(db.Model):
 
@@ -153,10 +142,13 @@ class Card(db.Model):
         return f'cards/{self.year}/{self.number}/{self.id}/thumb.{IMG_FORMAT}'
 
     def img_url(self):
-        return f'{AWS_URL}{self.S3_large_key()}'
+        if self.has_img:
+            return f'{AWS_URL}{self.S3_large_key()}'
+
 
     def thumb_url(self):
-        return f'{AWS_URL}{self.S3_thumb_key()}'
+        if self.has_img:
+            return f'{AWS_URL}{self.S3_thumb_key()}'
 
     @classmethod
     def create(cls, owner_id, player, year, set_name, number, desc, has_img=False):

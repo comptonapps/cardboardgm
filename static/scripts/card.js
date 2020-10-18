@@ -12,7 +12,6 @@ body.addEventListener('click', async function(e) {
     resultsContainer.classList.add('results-container');
     modal.append(resultsContainer);
     let res = await axios.get('/api/ebay', { params : {'item' : target.dataset.search }})
-    console.log(res)
     if (res.data.length > 0) {
         for (item of res.data) {
         let cell = new EbayCell(item).cell;

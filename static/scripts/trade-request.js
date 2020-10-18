@@ -43,7 +43,6 @@ yourCollection.addEventListener('click', (e) => {
             const card = getCardFromJson(parseInt(target.dataset.id));
             selectedCards.append(getNewRequestCell(card));
             selectedIds.push(target.dataset.id)
-            console.log(selectedIds);
         } else {
             selectedCards.querySelector(`[data-id="${target.dataset.id}"]`).remove()
         }
@@ -60,7 +59,6 @@ selectedCards.addEventListener('click', function(e) {
         let index = selectedIds.indexOf(id.toString());
         if (index != -1){
             selectedIds.splice(index, 1)
-            console.log(selectedIds)
         }
         target.parentElement.remove();
         yourCollection.querySelector(`[data-id="${id}"]`).checked = false;
