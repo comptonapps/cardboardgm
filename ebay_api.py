@@ -6,7 +6,7 @@ import os
 
 def get_recent_prices(card_info):
 
-    ebay_key = os.environ.get('EBAY_KEY', "JonCompt-Cardgmsc-PRD-ac8eaa52b-5dfbb331")
+    ebay_key = os.environ.get('EBAY_KEY')
     print(ebay_key)
 
     res = requests.get(EBAY_URL_ENDPOINT, params={'keywords'                       : card_info,
