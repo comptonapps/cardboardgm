@@ -40,3 +40,7 @@ You can find cards from scrolling through your entire collection or using the se
 
 Initially, the app used the findCompletedItems API from eBay so managers could evaluate card pricing based on previous eBay sales.  That API was made private
 on 10/15/2020, so now the app finds any fixed price items currently for sale on eBay.
+
+## APP TECHNOLOGIES
+
+This app was created using Flask and Python on the server side and uses jinja templates for page presentation.  In addition to HTML and CSS, vanilla js is used for client side coding.  I decided not to use bootstrap or jQuery in this project so I could get a better grasp on app development from the ground up.  
