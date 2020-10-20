@@ -568,7 +568,7 @@ input[type='file'] {
     margin: 0 auto;
     position: absolute;
     bottom: 20px;
-    left: calc(50vw - 30px);
+    left: calc(50vw - 20px);
 
 }
 

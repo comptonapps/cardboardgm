@@ -70,9 +70,9 @@ class CellCollectionListener {
 
     showLoader() {
         this.cellContainer.innerHTML += `<div class="loading">
-                                           <div class="circle"></div>
-                                           <div class="circle"></div>
-                                           <div class="circle"></div>
+                                           <div class="circle blue"></div>
+                                           <div class="circle blue"></div>
+                                           <div class="circle blue"></div>
                                         </div>`
     }
 
