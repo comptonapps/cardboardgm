@@ -44,7 +44,7 @@
                     <h3>Status: {% if request.accepted %} Accepted {% elif request.accepted == False %} Declined {% elif request.valid_items %} Active {% else %} Inactive - Item/s not available{% endif %}</h3>
                 </div>
                 <div class="items-box">
-                    <h3>{{request.from_user.username}}{{request.id}} {% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
+                    <h3>{{request.from_user.username}}{% if request.accepted %} received: {% elif request.accepted == False %} offered: {% else %} offers: {% endif %}</h3>
                     {% for item in request.items %}
                         {% if item.requested and request.accepted %}
                         <div class="items-box-cell">
@@ -53,8 +53,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.to_string()}}">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% elif not request.accepted and item.requested == False %}
                         <div class="items-box-cell">
@@ -63,8 +63,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.to_string()}}">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% endif %}
                     {% endfor %}
@@ -79,8 +79,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.to_string()}}">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% elif not request.accepted and item.requested %}
                         <div class="items-box-cell">
@@ -89,8 +89,8 @@
                                       {% else %}
                                       /static/images/default.jpg
                                       {% endif %}" alt="Image of {{item.info.to_string()}}">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <p>{{item.info.title}}</p>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% endif %}
                     {% endfor %}

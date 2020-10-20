@@ -215,7 +215,7 @@ button, input[type=submit] {
     cursor: pointer;
 }
 
-.form-btn:active, .banner-btn:active, .items-box-cell button:active, .trade-btn:active {
+.form-btn:active, .banner-btn:active, .items-box-cell button:active, .trade-btn:active, input[type="submit"]:active {
     background-color: white;
     color: black;
 }
@@ -542,23 +542,46 @@ input[type='file'] {
     margin-right: 8px;
 }
 
-.spinner {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
+
+/*   LOADING ANIMATION   */
+
+.circle {
+    width: 10px;
+    height: 10px;
+    background-color: white;
     border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-    z-index: 10;
-    position: absolute;
+    margin: 2px;
+    animation: jump 0.5s ease-in infinite;
+}
+
+.circle:nth-of-type(2) {
+    animation-delay: 0.1s;
+}
+
+.circle:nth-of-type(3) {
+    animation-delay: 0.2s;
+}
+
+.loading {
+    display: flex;
+    width: 80px;
     margin: 0 auto;
-    top: calc(50%-60px)
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+    position: absolute;
+    bottom: 20px;
+    left: calc(50vw - 30px);
+
+}
+
+@keyframes jump {
+    0% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+ 
 
 .trade-cell {
     width: 100%;
@@ -631,6 +654,7 @@ input[type=submit] {
     text-align: center;
     color: #888888;
     padding: 12px;
+    width: 100%;
 }
 
 /* --------------- CREATE TRADE REQUEST --------------- */
@@ -642,6 +666,7 @@ input[type=submit] {
 .trade-request-container {
     padding: 12px;
     height: 100%;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -693,6 +718,11 @@ input[type=submit] {
 
 .trade-control form button {
     width: 100%;
+}
+
+.trade-control form button:active {
+    background-color: white;
+    color: black;
 }
 
 .trade-btn {

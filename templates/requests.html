@@ -20,8 +20,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.title}}">
-                            <p>{{item.info.title}} {{item.info.id}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <a href='/cards/{{item.info.id}}'><p>{{item.info.title}}</p></a>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% elif not request.accepted and item.requested == False %}
                         <div class="items-box-cell">
@@ -30,8 +30,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.title}}">
-                            <p>{{item.info.title}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <a href='/cards/{{item.info.id}}'><p>{{item.info.title}}</p></a>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% endif %}
                     {% endfor %}
@@ -46,8 +46,8 @@
                                         {% else %}
                                         /static/images/default.jpg
                                         {% endif %}" alt="Image of {{item.info.title}}">
-                            <p>{{item.info.title}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <a href='/cards/{{item.info.id}}'><p>{{item.info.title}}</p></a>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% elif not request.accepted and item.requested %}
                         <div class="items-box-cell">
@@ -56,8 +56,8 @@
                                       {% else %}
                                       /static/images/default.jpg
                                       {% endif %}" alt="Image of {{item.info.title}}">
-                            <p>{{item.info.title}}</p>
-                            <button class="ebay" data-search="{{item.info.title}}">RECENT EBAY SALES</button>
+                            <a href='/cards/{{item.info.id}}'><p>{{item.info.title}}</p></a>
+                            <button class="ebay" data-search="{{item.info.title}}">CURRENT EBAY PRICING</button>
                         </div>
                         {% endif %}
                     {% endfor %}

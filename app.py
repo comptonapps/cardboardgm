@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, g, session, redirect, flash, 
 from models import db, connect_db, User, Card, TradeRequest, RequestCard
 from forms import LoginForm, RegisterForm, CardForm, EditUserForm, TradeRequestForm, HiddenRequestForm
 from sqlalchemy.exc import IntegrityError
-from helpers import delete_record_from_s3, upload_img
+from helpers import delete_record_from_s3, upload_img, load_card, delete_trade_request, decline_trade_request, accept_trade_request
 from PIL import Image, UnidentifiedImageError
 from ebay_api import get_recent_prices
 from constants import API_LIMIT
@@ -15,7 +15,7 @@ USER_ID = "user_id"
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', "thisIsASuperSecretKey")
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///cg_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['SQLALCHEMY_ECHO'] = True 
@@ -59,6 +59,7 @@ def login_user():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
+    """Register a new user"""
     if g.user:
         return redirect(f'/users/{g.user.id}')
     form = RegisterForm()
@@ -88,24 +89,24 @@ def register_user():
 ##########  USER ROUTES  ##########
 
 @app.route('/users')
-def redirect_to_users_all():
-    return redirect('/users/all/1')
-
-@app.route('/users/all/<int:page>')
-def show_users(page):
+def show_users():
+    """Show all users"""
     users = User.query.order_by(User.last_updated.desc()).limit(API_LIMIT).all()
     return render_template('users.html', users=users)
 
 @app.route('/users/<int:id>')
 def show_user(id):
+    """Show single user by id"""
     user = User.query.get_or_404(id)
     cards = Card.query.filter(Card.owner_id == id).order_by(Card.last_updated.desc()).limit(API_LIMIT).all()
     return render_template('user.html', user=user, cards=cards)
 
 @app.route('/users/<int:id>/edit', methods=['GET', 'POST'])
 def edit_user_form(id):
+    """Edit existing user data"""
     user = User.query.get_or_404(id)
     form = EditUserForm(obj=user)
+    # delete username and password from the edit form
     del form.username
     del form.password
     if form.validate_on_submit():
@@ -115,6 +116,7 @@ def edit_user_form(id):
         user.last_updated = datetime.datetime.utcnow()
         try:
             db.session.commit()
+            flash("User account info saved", "success")
             if form.image.data:
                 try:
                     img = Image.open(request.files[form.image.name])
@@ -135,6 +137,7 @@ def edit_user_form(id):
 
 @app.route('/users/<int:id>/add_card', methods=['GET', 'POST'])
 def add_new_card(id):
+    """Add a new card from form data"""
     form = CardForm()
     if form.validate_on_submit():
         new_card = Card.createFromForm(form, owner_id=id)
@@ -158,9 +161,11 @@ def add_new_card(id):
 
 @app.route('/users/<int:id>/delete', methods=['POST'])
 def delete_user(id):
+    """Delete the user from the db"""
     user = User.query.get_or_404(id)
     db.session.delete(user)
     try:
+        # Delete the user avatar image from the S3 bucket
         delete_record_from_s3(user)
         db.session.commit()
         flash("User Deleted!", 'success')
@@ -172,13 +177,18 @@ def delete_user(id):
 
 @app.route('/users/<int:id>/requests', methods=['GET', 'POST'])
 def show_requests(id):
-    form = TradeRequestForm()
-    requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.last_updated.desc()).all()
-    if form.validate_on_submit():
-        request = TradeRequest.query.get_or_404(int(form.request_id.data))
-        return handle_request_response(request, form)
-        
-    return render_template('requests.html', requests=requests, form=form)
+    """Display trade requests that the user is involved in"""
+    if g.user:
+        form = TradeRequestForm()
+        requests = TradeRequest.query.filter((TradeRequest.to_id == id) | (TradeRequest.from_id == id)).order_by(TradeRequest.last_updated.desc()).all()
+        if form.validate_on_submit():
+            request = TradeRequest.query.get_or_404(int(form.request_id.data))
+            return handle_request_response(request, form) 
+        return render_template('requests.html', requests=requests, form=form)
+    else:
+        flash("You must be logged in for access")
+        return redirect("/")
+    
 
 ##########  CARD ROUTES  ##########
 
@@ -221,45 +231,40 @@ def edit_card(id):
             flash("error saving changes", 'error')
     return render_template('edit-card.html', form=form, card=card)
 
-def load_card(card, form):
-    card.player = form.player.data
-    card.set_name = form.set_name.data
-    card.number = form.number.data
-    card.year = form.year.data
-    card.desc = form.desc.data
-    
-
-@app.route('/cards/<int:id>/request')
-def request_trade(id):
-    card = Card.query.get_or_404(id)
-    msg = f"Request for {card.to_string()} from user {g.user.username}"
-    return render_template('request.html', msg=msg)
-
 @app.route('/cards/<int:id>/new-request', methods=['GET', 'POST'])
 def create_trade_request(id):
-    form = HiddenRequestForm()
-    card = Card.query.get_or_404(id)
+    """Create a new trade request"""
     if g.user:
+        form = HiddenRequestForm()
+        card = Card.query.get_or_404(id)
         if form.validate_on_submit():
+            # Decode the JSON data
             data = json.loads(form.req_data.data)
-            ids = data.get('c', [])
+            # Get the ids from the form
+            ids = data.get('c_ids', [])
+            # Check that there are offered card ids
             if len(ids) == 0:
                 flash('You must select cards to trade', 'error')
                 return redirect(request.url)
+            # Create the request and add to database
             new_request = TradeRequest(to_id=card.owner_id, from_id=g.user.id)
             db.session.add(new_request)
             db.session.commit()
-            for id in data.get('c'):
-                request_card = RequestCard(request_id=new_request.id, card_id=int(id))
+            # Add the offered request cards to the trade request
+            for id in ids:
+                request_card = RequestCard(request_id=new_request.id, card_id=id)
                 db.session.add(request_card)
                 db.session.commit()
+            # Add the requested request card to the trade request
             requested_card = RequestCard(requested=True, request_id=new_request.id, card_id=card.id)
             db.session.add(requested_card)
             db.session.commit()
-                
+            flash('Request Created', 'success')  
         else:
+            # Send card data for title display in template
             requested_card = Card.query.get_or_404(id)
             g_user_cards = g.user.cards
+            # Add users card collection in JSON to the template.  This will prevent server calls for a limited data set.
             card_json = []
             for card in g_user_cards:
                 card_json.append(card.serialize())
@@ -349,35 +354,23 @@ def add_user_to_session(user):
 
 def handle_request_response(request, form):
     if form.delete.data:        
-        req_ID = request.id
-        req_cards = RequestCard.query.filter_by(request_id=req_ID).delete()
-        db.session.delete(request)
-        db.session.commit()
+        delete_trade_request(request)
         flash('Request Deleted!', 'success')
         return redirect(f'/users/{g.user.id}/requests')
     elif form.decline.data:
-        request.accepted = False
-        request.last_updated = datetime.datetime.utcnow()
-        db.session.commit()
+        decline_trade_request(request)
         flash('Request Declined!', 'success')
         return redirect('/')
     else:
-        if request.valid_items and request.accepted == None:
-            to_id = request.to_id
-            from_id = request.from_id
-            cards = request.cards
-            for card in cards:
-                card_requests = card.requests
-                if card.owner_id == to_id:
-                    card.owner_id = from_id
-                else:
-                    card.owner_id = to_id
-                for request in card_requests:
-                    request.valid_items = False
-            request.accepted = True
-            request.valid_items = False
-            request.last_updated = datetime.datetime.utcnow()
-            #### set other trade_requests with cards to valid_items = False
-            db.session.commit()
-            flash('Request Accepted!', 'success')
-            return redirect('/')
+        accept_trade_request(request)
+        flash('Request Accepted!', 'success')
+        return redirect('/')
+
+
+    
+
+
+
+
+
+
