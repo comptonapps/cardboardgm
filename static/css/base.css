@@ -401,6 +401,10 @@ input[type='file'] {
     height: 30px;
 }
 
+#query {
+    min-width: 350px;
+}
+
 .search-group-ebay {
     text-align: center;
 }
