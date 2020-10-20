@@ -505,8 +505,8 @@ input[type='file'] {
 }
 
 .detail-img {
-    max-height: 80%;
-    max-width: 80%;
+    max-height: 80vh;
+    max-width: 80vw;
 }
 
 #result-title, #request-title {
