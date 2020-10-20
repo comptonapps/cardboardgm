@@ -548,7 +548,6 @@ input[type='file'] {
 .circle {
     width: 10px;
     height: 10px;
-    background-color: white;
     border-radius: 50%;
     margin: 2px;
     animation: jump 0.5s ease-in infinite;
